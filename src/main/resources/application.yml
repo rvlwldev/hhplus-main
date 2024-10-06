@@ -1,0 +1,16 @@
+spring:
+  application.name: hhplus-concert
+  datasource:
+    url: jdbc:h2:mem:hhplus
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    defer-datasource-initialization: true
