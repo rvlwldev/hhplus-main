@@ -42,7 +42,10 @@ interface IPaymentController {
             )
         ]
     )
-    fun pay(@Parameter(description = "결제 토큰") @RequestHeader("Authorization") paymentToken: String): Any
+    fun pay(
+        @Parameter(description = "결제 토큰") @RequestHeader("Authorization") paymentToken: String,
+        request: PaymentRequest
+    ): Any
 
     @Operation(
         summary = "결제 이력을 조회합니다.",
@@ -57,26 +60,6 @@ interface IPaymentController {
         ]
     )
     fun getHistoryList(@Parameter(description = "유저 ID") @PathVariable("id") userId: Long): Any
-
-    @Operation(
-        summary = "결제를 취소합니다.",
-        responses = [
-            ApiResponse(
-                responseCode = "204",
-                description = "결제 취소 완료"
-            ),
-            ApiResponse(
-                responseCode = "404", content = [Content(
-                    schema = Schema(example = """{"error": "결제 내역을 찾을 수 없습니다."}"""),
-                    mediaType = "application/json"
-                )]
-            ),
-        ]
-    )
-    fun cancel(
-        @PathVariable("id") userId: Long,
-        @PathVariable("paymentId") paymentId: Long
-    ): Any
 }
 
 data class PaymentRequest(
@@ -87,18 +70,18 @@ data class PaymentRequest(
 @RequestMapping("/payments")
 class PaymentController(
     private val paymentFacade: PaymentFacade
-) {
+) : IPaymentController {
 
     @PostMapping
-    fun pay(
+    override fun pay(
         @RequestHeader("Authorization") payToken: String,
         @RequestBody request: PaymentRequest
     ) = ResponseEntity.ok().body(paymentFacade.pay(payToken, request.seatId))
 
     @GetMapping("/users/{id}/histories")
-    fun getHistoryList(@PathVariable("id") userId: Long) = ResponseEntity.ok()
+    override fun getHistoryList(@PathVariable("id") userId: Long) = ResponseEntity.ok()
         .body(paymentFacade.getHistoryList(userId))
-    
+
 }
 
 

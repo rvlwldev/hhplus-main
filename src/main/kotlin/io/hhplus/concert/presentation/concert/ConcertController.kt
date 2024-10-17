@@ -1,9 +1,9 @@
 package io.hhplus.concert.presentation.concert
 
 import io.hhplus.concert.application.ConcertReservationFacade
+import io.hhplus.concert.domain.concert.ConcertService
 import io.hhplus.concert.domain.concert.dto.ConcertResponse
 import io.hhplus.concert.domain.concert.dto.ConcertScheduleResponse
-import io.hhplus.concert.domain.concert.ConcertService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -54,17 +54,18 @@ interface IConcertController {
     )
     fun getScheduleList(@Parameter(description = "콘서트 ID") @PathVariable("concertId") concertId: Long): Any
 
+    @Operation(summary = "콘서트 일정 상세 조회")
+    fun getSchedule(scheduleId: Long): Any
+
+    @Operation(summary = "콘서트 일정의 좌석 조회")
+    fun getSeatList(scheduleId: Long): Any
+
     @Operation(
         summary = "대기열 상태 조회",
         description = "현재 대기열의 상태를 조회합니다. 대기열 종료 시 결재토큰이 반환됩니다.",
-        responses =
-        [
-
-        ]
     )
     fun getQueueResponse(
         @Parameter(description = "발급받은 대기열 토큰") @RequestHeader("Authorization", required = true) queueToken: String,
-        @Parameter(description = "콘서트 ID") @PathVariable("concertId") concertId: Long,
         @Parameter(description = "콘서트 일정 ID") @PathVariable("scheduleId") scheduleId: Long,
     ): Any
 
@@ -107,31 +108,31 @@ interface IConcertController {
 class ConcertController(
     private val service: ConcertService,
     private val facade: ConcertReservationFacade
-) {
+) : IConcertController {
 
     @GetMapping
-    fun getList() = ResponseEntity.ok()
+    override fun getList() = ResponseEntity.ok()
         .body(service.getAll())
 
     @GetMapping("/{concertId}/schedules")
-    fun getScheduleList(@PathVariable("concertId") concertId: Long) = ResponseEntity.ok()
+    override fun getScheduleList(@PathVariable("concertId") concertId: Long) = ResponseEntity.ok()
         .body(service.getScheduleList(concertId))
 
     @GetMapping("/schedules/{scheduleId}")
-    fun getSchedule(@PathVariable("scheduleId") scheduleId: Long) = ResponseEntity.ok()
+    override fun getSchedule(@PathVariable("scheduleId") scheduleId: Long) = ResponseEntity.ok()
         .body(service.getSchedule(scheduleId))
 
     @GetMapping("/schedules/{scheduleId}/seats")
-    fun getSeatList(@PathVariable("scheduleId") scheduleId: Long) = ResponseEntity.ok()
+    override fun getSeatList(@PathVariable("scheduleId") scheduleId: Long) = ResponseEntity.ok()
 
     @GetMapping("/schedules/{scheduleId}/reserves/wait")
-    fun getQueueResponse(
+    override fun getQueueResponse(
         @RequestHeader("Authorization", required = true) queueToken: String,
         @PathVariable("scheduleId") scheduleId: Long,
     ) = ResponseEntity.ok().body(facade.waitQueue(queueToken, scheduleId))
 
     @PutMapping("/schedules/{scheduleId}/users/{userId}/reserves")
-    fun reserve(
+    override fun reserve(
         @PathVariable("userId") userId: Long,
         @PathVariable("scheduleId") scheduleId: Long,
     ) = ResponseEntity.ok().body(facade.reserve(userId, scheduleId))
