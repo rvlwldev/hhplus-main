@@ -1,4 +1,4 @@
-package io.hhplus.concert.presentation.payment.response
+package io.hhplus.concert.domain.payment.dto
 
 data class PaymentHistoryResponse(
     val paymentId: Long,
