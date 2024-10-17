@@ -1,8 +1,9 @@
 package io.hhplus.concert.presentation.user
 
-import io.hhplus.concert.presentation.user.request.PointRequest
-import io.hhplus.concert.presentation.user.response.PointHistoryResponse
-import io.hhplus.concert.presentation.user.response.PointResponse
+import io.hhplus.concert.domain.user.dto.PointHistoryResponse
+import io.hhplus.concert.domain.user.dto.PointResponse
+import io.hhplus.concert.domain.user.service.UserService
+import io.hhplus.concert.presentation.user.dto.PointRequest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.RequestBody as Request
 
 @Tag(name = "1. 유저", description = "유저 및 유저 포인트 관련")
 interface IUserController {
@@ -82,28 +84,28 @@ interface IUserController {
             )
         ]
     )
-    fun chargePoint(@Parameter(description = "유저 ID") @PathVariable("id") userId: Long): Any
+    fun chargePoint(
+        @Parameter(description = "유저 ID") @PathVariable("id") userId: Long,
+        @Request request: PointRequest
+    ): Any
 }
 
 
 @RestController
 @RequestMapping("/users")
-class UserController : IUserController {
+class UserController(
+    private val service: UserService
+) : IUserController {
 
     @GetMapping("/{id}/points")
     override fun getPoint(@PathVariable("id") userId: Long) = ResponseEntity.ok()
-        .body(PointResponse(20000L))
+        .body(service.getPoint(userId))
 
     @GetMapping("/{id}/points/histories")
     override fun getHistoryList(@PathVariable("id") userId: Long) = ResponseEntity.ok()
-        .body(
-            listOf(
-                PointHistoryResponse(1, "CHARGE", 25000),
-                PointHistoryResponse(2, "USE", 10000)
-            )
-        )
+        .body(service.getHistoryList(userId))
 
     @PatchMapping("/{id}/points/charge")
-    override fun chargePoint(@PathVariable("id") userId: Long) = ResponseEntity.ok()
-        .body(PointResponse(10000L))
+    override fun chargePoint(@PathVariable("id") userId: Long, @Request(required = true) request: PointRequest) =
+        ResponseEntity.ok().body(service.chargePoint(userId, request.point))
 }
