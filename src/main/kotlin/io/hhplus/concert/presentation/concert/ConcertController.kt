@@ -1,9 +1,10 @@
 package io.hhplus.concert.presentation.concert
 
-import io.hhplus.concert.presentation.concert.response.ConcertResponse
-import io.hhplus.concert.presentation.concert.response.ConcertScheduleResponse
-import io.hhplus.concert.presentation.concert.response.ReserveQueueResponse
-import io.hhplus.concert.presentation.concert.response.TokenResponse
+import io.hhplus.concert.domain.concert.dto.ConcertResponse
+import io.hhplus.concert.domain.concert.dto.ConcertScheduleResponse
+import io.hhplus.concert.domain.concert.dto.ReserveQueueResponse
+import io.hhplus.concert.domain.concert.dto.TokenResponse
+import io.hhplus.concert.domain.concert.service.ConcertService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -129,38 +130,27 @@ interface IConcertController {
 
 @RestController
 @RequestMapping("/concerts")
-class ConcertController : IConcertController {
+class ConcertController(
+    private val service: ConcertService
+) : IConcertController {
 
     @GetMapping
     override fun getList() = ResponseEntity.ok()
-        .body(
-            listOf(
-                ConcertResponse(1, "허재의 카드마술쇼", 70000L),
-                ConcertResponse(2, "하헌우의 라이브 코딩쇼", 70000L),
-            )
-        )
+        .body(service.getAll())
 
     @GetMapping("/{concertId}/schedules")
     override fun getScheduleList(@PathVariable("concertId") concertId: Long) = ResponseEntity.ok()
-        .body(
-            listOf(
-                ConcertScheduleResponse(
-                    1,
-                    "2024-10-31 14:30:00",
-                    "2024-10-31 15:30:00",
-                    50,
-                    1
-                ),
-                ConcertScheduleResponse(
-                    2,
-                    "2024-11-31 14:30:00",
-                    "2024-11-31 15:30:00",
-                    50,
-                    0
-                )
-            )
-        )
+        .body(service.getScheduleList(concertId))
 
+    @GetMapping("/schedules/{scheduleId}")
+    fun getSchedule(@PathVariable("scheduleId") scheduleId: Long) = ResponseEntity.ok()
+        .body(service.getSchedule(scheduleId))
+
+    @GetMapping("/schedules/{scheduleId}/seats")
+    fun getSeatList(@PathVariable("scheduleId") scheduleId: Long) = ResponseEntity.ok()
+        .body(service.getReservableSeatList(scheduleId))
+
+    // TODO : 대기열 토큰으로 대기정보 반환, 대기 이후 아니면 결제 토큰 반환
     @GetMapping("/{concertId}/schedules/{scheduleId}/reserves")
     override fun getQueueResponse(
         @RequestHeader("Authorization", required = true) queueToken: String,
@@ -168,6 +158,7 @@ class ConcertController : IConcertController {
         @PathVariable("scheduleId") scheduleId: Long,
     ) = ResponseEntity.ok().body(TokenResponse("ey..."))
 
+    // TODO : 대기열 토큰 반환 ...
     @PutMapping("/{concertId}/schedules/{scheduleId}/reserves")
     override fun reserve(
         @PathVariable("concertId") concertId: Long,
