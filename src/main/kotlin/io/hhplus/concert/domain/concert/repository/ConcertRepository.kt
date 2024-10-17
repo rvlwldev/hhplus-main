@@ -1,4 +1,4 @@
-package io.hhplus.concert.domain.concert
+package io.hhplus.concert.domain.concert.repository
 
 import io.hhplus.concert.domain.concert.entity.Concert
 import io.hhplus.concert.domain.concert.entity.ConcertSchedule

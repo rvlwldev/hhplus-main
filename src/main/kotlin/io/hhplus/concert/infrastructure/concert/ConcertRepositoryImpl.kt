@@ -1,6 +1,6 @@
 package io.hhplus.concert.infrastructure.concert
 
-import io.hhplus.concert.domain.concert.ConcertRepository
+import io.hhplus.concert.domain.concert.repository.ConcertRepository
 import io.hhplus.concert.domain.concert.entity.Concert
 import io.hhplus.concert.domain.concert.entity.ConcertSchedule
 import io.hhplus.concert.domain.concert.entity.Seat

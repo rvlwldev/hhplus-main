@@ -1,10 +1,9 @@
 package io.hhplus.concert.presentation.concert
 
+import io.hhplus.concert.application.ConcertReservationFacade
 import io.hhplus.concert.domain.concert.dto.ConcertResponse
 import io.hhplus.concert.domain.concert.dto.ConcertScheduleResponse
-import io.hhplus.concert.domain.concert.dto.ReserveQueueResponse
-import io.hhplus.concert.domain.concert.dto.TokenResponse
-import io.hhplus.concert.domain.concert.service.ConcertService
+import io.hhplus.concert.domain.concert.ConcertService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -14,7 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.net.URI
 
 
 @Tag(name = "2. 콘서트", description = "콘서트 관련 기능 관리")
@@ -61,30 +59,7 @@ interface IConcertController {
         description = "현재 대기열의 상태를 조회합니다. 대기열 종료 시 결재토큰이 반환됩니다.",
         responses =
         [
-            ApiResponse(
-                responseCode = "200",
-                content = [Content(
-                    schema = Schema(implementation = TokenResponse::class),
-                    mediaType = "application/json"
-                )],
-                description = "5분간 유효한 결재 토큰을 반환합니다."
-            ),
-            ApiResponse(
-                responseCode = "202",
-                content = [Content(
-                    schema = Schema(implementation = ReserveQueueResponse::class),
-                    mediaType = "application/json"
-                )],
-                description = "현재 대기열 상태를 반환합니다."
-            ),
-            ApiResponse(
-                responseCode = "401",
-                content = [Content(
-                    schema = Schema(example = """{ "error": "올바르지 않은 요청입니다." }"""),
-                    mediaType = "application/json"
-                )],
-                description = "대기열 토큰이 올바르지 않거나 누락된 경우입니다."
-            )
+
         ]
     )
     fun getQueueResponse(
@@ -100,7 +75,6 @@ interface IConcertController {
             ApiResponse(
                 responseCode = "201",
                 content = [Content(
-                    schema = Schema(implementation = TokenResponse::class),
                     mediaType = "application/json"
                 )],
                 description = "예약 성공 시 예약 상세 정보 반환"
@@ -131,15 +105,16 @@ interface IConcertController {
 @RestController
 @RequestMapping("/concerts")
 class ConcertController(
-    private val service: ConcertService
-) : IConcertController {
+    private val service: ConcertService,
+    private val facade: ConcertReservationFacade
+) {
 
     @GetMapping
-    override fun getList() = ResponseEntity.ok()
+    fun getList() = ResponseEntity.ok()
         .body(service.getAll())
 
     @GetMapping("/{concertId}/schedules")
-    override fun getScheduleList(@PathVariable("concertId") concertId: Long) = ResponseEntity.ok()
+    fun getScheduleList(@PathVariable("concertId") concertId: Long) = ResponseEntity.ok()
         .body(service.getScheduleList(concertId))
 
     @GetMapping("/schedules/{scheduleId}")
@@ -148,22 +123,16 @@ class ConcertController(
 
     @GetMapping("/schedules/{scheduleId}/seats")
     fun getSeatList(@PathVariable("scheduleId") scheduleId: Long) = ResponseEntity.ok()
-        .body(service.getReservableSeatList(scheduleId))
 
-    // TODO : 대기열 토큰으로 대기정보 반환, 대기 이후 아니면 결제 토큰 반환
-    @GetMapping("/{concertId}/schedules/{scheduleId}/reserves")
-    override fun getQueueResponse(
+    @GetMapping("/schedules/{scheduleId}/reserves/wait")
+    fun getQueueResponse(
         @RequestHeader("Authorization", required = true) queueToken: String,
-        @PathVariable("concertId") concertId: Long,
         @PathVariable("scheduleId") scheduleId: Long,
-    ) = ResponseEntity.ok().body(TokenResponse("ey..."))
+    ) = ResponseEntity.ok().body(facade.waitQueue(queueToken, scheduleId))
 
-    // TODO : 대기열 토큰 반환 ...
-    @PutMapping("/{concertId}/schedules/{scheduleId}/reserves")
-    override fun reserve(
-        @PathVariable("concertId") concertId: Long,
+    @PutMapping("/schedules/{scheduleId}/users/{userId}/reserves")
+    fun reserve(
+        @PathVariable("userId") userId: Long,
         @PathVariable("scheduleId") scheduleId: Long,
-    ) = ResponseEntity
-        .created(URI.create("/concerts/$concertId/schedules/$scheduleId/reserves"))
-        .body(TokenResponse("ey..."))
+    ) = ResponseEntity.ok().body(facade.reserve(userId, scheduleId))
 }
