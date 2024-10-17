@@ -50,4 +50,14 @@ class ConcertService(
         seat.confirm()
         seatRepo.save(seat)
     }
+
+    @Transactional
+    fun resetSeatStatus(userId: Long, scheduleId: Long) {
+        val seat = seatRepo.findByUserIdAndScheduleIdWithLock(userId, scheduleId)
+        if (seat != null && seat.status == SeatStatus.RESERVED) {
+            seat.cancel()
+            seatRepo.save(seat)
+        }
+        throw BizException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.")
+    }
 }

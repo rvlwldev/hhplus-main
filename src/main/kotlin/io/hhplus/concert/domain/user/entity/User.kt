@@ -23,7 +23,12 @@ class User(
         return this
     }
 
-    fun toDTO() = UserResponse(userId)
+    fun use(amount: Long): User {
+        if (amount < 1) throw BizException(HttpStatus.BAD_REQUEST, "올바르지 않은 충전금액 입니다.")
+        if (point - amount < 0) throw BizException(HttpStatus.BAD_REQUEST, "잔여 포인트가 부족합니다.")
+        point -= amount
+        return this
+    }
 
     fun toPointDTO() = PointResponse(point)
 }

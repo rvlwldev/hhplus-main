@@ -22,4 +22,10 @@ class QueueSchedulerService(
     fun deleteTimeoutQueues() {
         service.deleteTimeout()
     }
+
+    @Scheduled(fixedRate = 600000)
+    fun deletePayTimeout() {
+        service.deletePaymentTimeout()
+    }
+
 }

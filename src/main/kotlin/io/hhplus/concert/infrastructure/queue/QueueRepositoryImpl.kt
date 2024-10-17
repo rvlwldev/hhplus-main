@@ -2,6 +2,7 @@ package io.hhplus.concert.infrastructure.queue
 
 import io.hhplus.concert.domain.queue.Queue
 import io.hhplus.concert.domain.queue.QueueRepository
+import io.hhplus.concert.domain.queue.QueueStatus
 import jakarta.persistence.LockModeType
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -22,9 +23,26 @@ interface QueueJpaRepository : JpaRepository<Queue, Long> {
     @Query("SELECT q FROM Queue q WHERE q.status = 'WAIT' ORDER BY q.createdAt ASC")
     fun findWaitQueueByWithLockAndSize(limit: Pageable): List<Queue>
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT q FROM Queue q WHERE q.userId = :userId AND q.scheduleId = :scheduleId AND q.status = 'PASS'")
+    fun findPassQueueByUserIdAndScheduleIdWithLock(userId: Long, scheduleId: Long): Optional<Queue>
+
     @Modifying
     @Query("DELETE FROM Queue q WHERE q.updatedAt < :expiredTime AND q.status = 'PASS'")
     fun deleteAllTimeout(expiredTime: ZonedDateTime)
+
+    // In QueueRepository interface
+
+    @Modifying
+    @Query("DELETE FROM Queue q WHERE q.userId = :userId AND q.scheduleId = :scheduleId")
+    fun deleteByUserIdAndScheduleId(userId: Long, scheduleId: Long): Int
+
+    @Modifying
+    @Query("DELETE FROM Queue q WHERE q.status = :status AND q.updatedAt < :updatedAtBefore")
+    fun deleteByStatusAndUpdatedAtBefore(
+        status: QueueStatus,
+        updatedAtBefore: ZonedDateTime
+    ): Int
 }
 
 @Repository
@@ -39,11 +57,22 @@ class QueueRepositoryImpl(private val jpa: QueueJpaRepository) : QueueRepository
         return jpa.findWaitQueueByWithLockAndSize(pageable)
     }
 
+    override fun findPassQueueByUserIdAndScheduleId(userId: Long, scheduleId: Long): Queue? =
+        jpa.findPassQueueByUserIdAndScheduleIdWithLock(userId, scheduleId).orElse(null)
+
     override fun save(queue: Queue) = jpa.save(queue)
 
     override fun deleteTimeout() {
         val expiredTime = ZonedDateTime.now().minusMinutes(10) // 10분 지난 대기열 삭제
         jpa.deleteAllTimeout(expiredTime)
+    }
+
+    override fun deleteByUserIdAndScheduleId(userId: Long, scheduleId: Long) {
+        jpa.deleteByUserIdAndScheduleId(userId, scheduleId)
+    }
+
+    override fun deleteByStatusAndUpdatedAtBefore(status: QueueStatus, updatedAtBefore: ZonedDateTime) {
+        TODO("Not yet implemented")
     }
 
 }

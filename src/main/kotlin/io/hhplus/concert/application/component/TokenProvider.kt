@@ -48,8 +48,12 @@ class TokenProvider {
     fun createPaymentToken(userId: Long, scheduleId: Long): String {
         val now = Date()
         val expiryDate = Date(now.time + paymentTokenExpiration)
+        val claims = HashMap<String, Long>()
+        claims["userId"] = userId
+        claims["scheduleId"] = scheduleId
 
         return Jwts.builder()
+            .setClaims(claims)
             .setSubject(userId.toString())
             .setIssuedAt(now)
             .setExpiration(expiryDate)
@@ -58,16 +62,10 @@ class TokenProvider {
     }
 
 
-    fun validateQueueToken(token: String): Map<String, Long> =
-        validateToken(token, queueTokenSecret)
-
-    fun validatePaymentToken(token: String): Map<String, Long> =
-        validateToken(token, paymentTokenSecret)
-
-    private fun validateToken(token: String, secret: Key): Map<String, Long> {
+    fun validateQueueToken(token: String): Map<String, Long> {
         try {
             val claims = Jwts.parserBuilder()
-                .setSigningKey(secret)
+                .setSigningKey(queueTokenSecret)
                 .build()
                 .parseClaimsJws(token)
                 .body  // Claims 반환
@@ -84,4 +82,28 @@ class TokenProvider {
             throw BizException(HttpStatus.UNAUTHORIZED, "잘못된 요청입니다.")
         }
     }
+
+
+    fun validatePaymentToken(token: String): Map<String, Long> {
+        try {
+            val claims = Jwts.parserBuilder()
+                .setSigningKey(paymentTokenSecret)
+                .build()
+                .parseClaimsJws(token)
+                .body
+
+            val resultMap = HashMap<String, Long>()
+            resultMap["userId"] = claims["userId"].toString().toLong()
+            resultMap["scheduleId"] = claims["scheduleId"].toString().toLong()
+
+            return resultMap
+
+        } catch (e: ExpiredJwtException) {
+            throw BizException(HttpStatus.REQUEST_TIMEOUT, "인증시간이 초과되었습니다.")
+        } catch (e: Exception) {
+            throw BizException(HttpStatus.UNAUTHORIZED, "잘못된 요청입니다.")
+        }
+
+    }
+
 }

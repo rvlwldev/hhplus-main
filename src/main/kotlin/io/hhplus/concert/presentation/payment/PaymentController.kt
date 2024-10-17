@@ -1,7 +1,8 @@
 package io.hhplus.concert.presentation.payment
 
-import io.hhplus.concert.presentation.payment.response.PaymentHistoryResponse
-import io.hhplus.concert.presentation.payment.response.PaymentResponse
+import io.hhplus.concert.application.PaymentFacade
+import io.hhplus.concert.domain.payment.dto.PaymentHistoryResponse
+import io.hhplus.concert.domain.payment.dto.PaymentResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.ArraySchema
@@ -41,7 +42,7 @@ interface IPaymentController {
             )
         ]
     )
-    fun pay(@Parameter(description = "결제 토큰") @RequestHeader("Authorization") payToken: String): Any
+    fun pay(@Parameter(description = "결제 토큰") @RequestHeader("Authorization") paymentToken: String): Any
 
     @Operation(
         summary = "결제 이력을 조회합니다.",
@@ -78,49 +79,26 @@ interface IPaymentController {
     ): Any
 }
 
+data class PaymentRequest(
+    val seatId: Long
+)
+
 @RestController
 @RequestMapping("/payments")
-class PaymentController : IPaymentController {
+class PaymentController(
+    private val paymentFacade: PaymentFacade
+) {
 
     @PostMapping
-    override fun pay(@RequestHeader("Authorization") payToken: String) = ResponseEntity.ok()
-        .body(
-            PaymentResponse(
-                1,
-                1,
-                70000,
-                "2024-10-31 14:30:00",
-                "2024-10-31 15:30:00"
-            )
-        )
+    fun pay(
+        @RequestHeader("Authorization") payToken: String,
+        @RequestBody request: PaymentRequest
+    ) = ResponseEntity.ok().body(paymentFacade.pay(payToken, request.seatId))
 
     @GetMapping("/users/{id}/histories")
-    override fun getHistoryList(@PathVariable("id") userId: Long) = ResponseEntity.ok()
-        .body(
-            listOf(
-                PaymentHistoryResponse(
-                    1,
-                    1,
-                    1,
-                    "CHARGE",
-                    "2024-10-10 14:30:00",
-                    50000
-                ),
-                PaymentHistoryResponse(
-                    2,
-                    2,
-                    1,
-                    "USE",
-                    "2024-11-10 14:30:00",
-                    25000
-                ),
-            )
-        )
-
-    @DeleteMapping("/users/{id}/histories/{paymentId}")
-    override fun cancel(
-        @PathVariable("id") userId: Long,
-        @PathVariable("paymentId") paymentId: Long
-    ) = ResponseEntity.noContent()
-
+    fun getHistoryList(@PathVariable("id") userId: Long) = ResponseEntity.ok()
+        .body(paymentFacade.getHistoryList(userId))
+    
 }
+
+

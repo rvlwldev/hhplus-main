@@ -17,7 +17,7 @@ data class SeatId(
 
 @Entity
 @IdClass(SeatId::class)
-@Table(uniqueConstraints = [UniqueConstraint(columnNames = ["seatId", "scheduleId", "userId"])])
+@Table(uniqueConstraints = [UniqueConstraint(columnNames = ["seatId", "scheduleId"])])
 class Seat(
     @Id
     val seatId: Long = 0L,

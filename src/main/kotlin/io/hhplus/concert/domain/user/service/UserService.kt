@@ -35,4 +35,11 @@ class UserService(
             .toPointDTO()
     }
 
+    @Transactional
+    fun use(userId: Long, amount: Long): PointResponse {
+        val user = get(userId)
+        return repo.save(user.use(amount))
+            .toPointDTO()
+    }
+
 }

@@ -4,6 +4,7 @@ import io.hhplus.concert.core.exception.BizException
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.ZonedDateTime
 
 @Service
 class QueueService(private val repo: QueueRepository) {
@@ -38,6 +39,17 @@ class QueueService(private val repo: QueueRepository) {
     @Transactional
     fun deleteTimeout() {
         repo.deleteTimeout()
+    }
+
+    @Transactional
+    fun deleteByUserIdAndScheduleId(userId: Long, scheduleId: Long) {
+        repo.deleteByUserIdAndScheduleId(userId, scheduleId)
+    }
+
+    @Transactional
+    fun deletePaymentTimeout() {
+        val updatedAtBefore = ZonedDateTime.now().minusMinutes(10L)
+        repo.deleteByStatusAndUpdatedAtBefore(QueueStatus.PASS, updatedAtBefore)
     }
 
 }
