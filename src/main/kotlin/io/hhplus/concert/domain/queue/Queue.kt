@@ -8,7 +8,11 @@ import java.time.LocalDateTime
 @Entity
 class Queue(
 
+    @Transient
+    val QUEUE_TIME_OUT_SECONDS: Long = 60 * 5,
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
 
     @OneToOne
@@ -37,7 +41,17 @@ class Queue(
         protected set
 
     fun pass() {
+        validateTimeOut()
         status = QueueStatus.PASS
         updatedAt = LocalDateTime.now()
     }
+
+    fun validateTimeOut() {
+        val now = LocalDateTime.now()
+        val limit = createdAt.plusSeconds(QUEUE_TIME_OUT_SECONDS)
+
+        if (now.isAfter(limit))
+            throw IllegalStateException("예약 대기 시간이 만료되었습니다.")
+    }
+
 }

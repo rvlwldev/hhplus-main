@@ -1,24 +1,19 @@
 package io.hhplus.concert.domain.payment
 
-import io.hhplus.concert.domain.seat.Seat
 import java.time.LocalDateTime
 
 data class PaymentResponse(
-    val concertId: Long,
-    val concertName: String,
-    val sttAt: LocalDateTime,
-    val endAt: LocalDateTime,
-    val seatNumber: Int,
     val amount: Long,
-    val paidAt: LocalDateTime
+    val createdAt: LocalDateTime,
+    val paidAt: LocalDateTime?,
+    val status: String,
+    val updatedAt: LocalDateTime?
 ) {
-    constructor(seat: Seat, payment: Payment) : this(
-        concertId = seat.schedule.concert.id,
-        concertName = seat.schedule.concert.name,
-        sttAt = seat.schedule.sttAt,
-        endAt = seat.schedule.endAt,
-        seatNumber = seat.seatNumber,
+    constructor(payment: Payment) : this(
         amount = payment.amount,
-        paidAt = payment.paidAt
+        createdAt = payment.createdAt,
+        paidAt = payment.paidAt,
+        updatedAt = payment.updatedAt,
+        status = payment.status.name,
     )
 }
