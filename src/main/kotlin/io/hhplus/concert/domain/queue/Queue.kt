@@ -41,7 +41,11 @@ class Queue(
         protected set
 
     fun pass() {
+        if (status == QueueStatus.PASS)
+            throw IllegalStateException("이미 처리된 대기열 입니다.")
+
         validateTimeOut()
+
         status = QueueStatus.PASS
         updatedAt = LocalDateTime.now()
     }
