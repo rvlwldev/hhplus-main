@@ -1,6 +1,4 @@
-package io.hhplus.concert.domain.concert.dto
-
-import io.hhplus.concert.domain.concert.entity.Seat
+package io.hhplus.concert.domain.seat
 
 class SeatResponse(
     val seatNumber: Int,

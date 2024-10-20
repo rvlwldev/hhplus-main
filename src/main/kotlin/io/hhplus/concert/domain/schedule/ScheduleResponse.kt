@@ -1,7 +1,6 @@
-package io.hhplus.concert.domain.concert.dto
+package io.hhplus.concert.domain.schedule
 
-import io.hhplus.concert.domain.concert.entity.Schedule
-import io.hhplus.concert.domain.concert.entity.SeatStatus
+import io.hhplus.concert.domain.seat.SeatStatus
 import java.time.LocalDateTime
 
 data class ScheduleResponse(

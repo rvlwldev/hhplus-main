@@ -1,6 +1,6 @@
-package io.hhplus.concert.domain.concert.dto
+package io.hhplus.concert.domain.concert
 
-import io.hhplus.concert.domain.concert.entity.Concert
+import io.hhplus.concert.domain.schedule.ScheduleResponse
 
 data class ConcertResponse(
     val id: Long,

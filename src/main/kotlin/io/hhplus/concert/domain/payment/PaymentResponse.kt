@@ -1,6 +1,6 @@
 package io.hhplus.concert.domain.payment
 
-import io.hhplus.concert.domain.concert.entity.Seat
+import io.hhplus.concert.domain.seat.Seat
 import java.time.LocalDateTime
 
 data class PaymentResponse(
