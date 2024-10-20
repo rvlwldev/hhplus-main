@@ -23,17 +23,17 @@ class User(
 
     fun usePoint(amount: Long) {
         if (amount <= 0)
-            throw IllegalArgumentException("1보다 작은 포인트는 사용 불가")
+            throw IllegalArgumentException("1보다 작은 포인트는 사용할 수 없습니다.")
 
         if (point < amount)
-            throw IllegalArgumentException("보유 포인트 부족")
+            throw IllegalArgumentException("보유 포인트가 부족합니다.")
 
         point -= amount
     }
 
     fun chargePoint(amount: Long) {
         if (amount <= 0)
-            throw IllegalArgumentException("1보다 작은 포인트는 충전 불가")
+            throw IllegalArgumentException("1보다 작은 포인트는 충전할 수 없습니다.")
 
         point += amount
     }
