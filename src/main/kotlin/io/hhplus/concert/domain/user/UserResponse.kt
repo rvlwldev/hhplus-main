@@ -1,6 +1,4 @@
-package io.hhplus.concert.domain.user.dto
-
-import io.hhplus.concert.domain.user.entity.User
+package io.hhplus.concert.domain.user
 
 class UserResponse(
     val id: Long,

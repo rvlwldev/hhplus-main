@@ -1,15 +1,14 @@
-package io.hhplus.concert.domain.user.dto
+package io.hhplus.concert.domain.pointHistory
 
-import io.hhplus.concert.domain.user.entity.UserPointHistory
 import java.time.LocalDateTime
 
-data class UserPointHistoryResponse(
+data class PointHistoryResponse(
     val userId: Long,
     val amount: Long,
     val type: String,
     val createdAt: LocalDateTime
 ) {
-    constructor(history: UserPointHistory) : this(
+    constructor(history: PointHistory) : this(
         userId = history.user.id,
         amount = history.amount,
         type = history.type.name,

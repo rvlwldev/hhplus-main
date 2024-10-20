@@ -1,7 +1,7 @@
 package io.hhplus.concert.domain.seat
 
 import io.hhplus.concert.domain.schedule.Schedule
-import io.hhplus.concert.domain.user.entity.User
+import io.hhplus.concert.domain.user.User
 import jakarta.persistence.*
 
 

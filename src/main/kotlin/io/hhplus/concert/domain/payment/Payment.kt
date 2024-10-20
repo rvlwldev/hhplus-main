@@ -1,6 +1,6 @@
 package io.hhplus.concert.domain.payment
 
-import io.hhplus.concert.domain.user.entity.User
+import io.hhplus.concert.domain.user.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
