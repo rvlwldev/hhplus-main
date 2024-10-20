@@ -4,6 +4,6 @@ interface ConcertRepository {
     fun save(concert: Concert): Concert
     fun save(name: String): Concert
 
-    fun findConcertById(id: Long): Concert?
-    fun findAllConcert(): List<Concert>
+    fun findById(id: Long): Concert?
+    fun findAll(): List<Concert>
 }
