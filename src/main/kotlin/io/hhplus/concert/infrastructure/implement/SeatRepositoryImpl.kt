@@ -4,7 +4,9 @@ import io.hhplus.concert.domain.schedule.Schedule
 import io.hhplus.concert.domain.seat.Seat
 import io.hhplus.concert.domain.seat.SeatRepository
 import io.hhplus.concert.infrastructure.jpa.SeatJpaRepository
+import org.springframework.stereotype.Repository
 
+@Repository
 class SeatRepositoryImpl(private val jpa: SeatJpaRepository) : SeatRepository {
     override fun save(seat: Seat): Seat =
         jpa.save(seat)

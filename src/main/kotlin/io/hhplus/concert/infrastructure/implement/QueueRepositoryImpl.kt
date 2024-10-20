@@ -5,7 +5,9 @@ import io.hhplus.concert.domain.queue.QueueRepository
 import io.hhplus.concert.infrastructure.jpa.QueueJpaRepository
 import io.hhplus.concert.infrastructure.jpa.ScheduleJpaRepository
 import io.hhplus.concert.infrastructure.jpa.UserJpaRepository
+import org.springframework.stereotype.Repository
 
+@Repository
 class QueueRepositoryImpl(
     private val jpa: QueueJpaRepository,
     private val userJpa: UserJpaRepository,
