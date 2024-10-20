@@ -1,13 +1,9 @@
 package io.hhplus.concert.domain.queue
 
-import io.hhplus.concert.domain.concert.entity.Schedule
+import io.hhplus.concert.domain.schedule.Schedule
 import io.hhplus.concert.domain.user.entity.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
-
-enum class QueueStatus {
-    WAIT, PASS
-}
 
 @Entity
 class Queue(

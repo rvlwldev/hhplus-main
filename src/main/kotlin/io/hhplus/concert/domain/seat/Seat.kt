@@ -1,11 +1,9 @@
-package io.hhplus.concert.domain.concert.entity
+package io.hhplus.concert.domain.seat
 
+import io.hhplus.concert.domain.schedule.Schedule
 import io.hhplus.concert.domain.user.entity.User
 import jakarta.persistence.*
 
-enum class SeatStatus {
-    EMPTY, WAIT, PAID
-}
 
 @Entity
 @Table(name = "concert_seat")

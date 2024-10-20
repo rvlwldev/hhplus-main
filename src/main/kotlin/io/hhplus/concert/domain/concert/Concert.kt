@@ -1,5 +1,6 @@
-package io.hhplus.concert.domain.concert.entity
+package io.hhplus.concert.domain.concert
 
+import io.hhplus.concert.domain.schedule.Schedule
 import jakarta.persistence.*
 
 @Entity

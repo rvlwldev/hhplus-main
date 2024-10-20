@@ -1,5 +1,8 @@
-package io.hhplus.concert.domain.concert.entity
+package io.hhplus.concert.domain.schedule
 
+import io.hhplus.concert.domain.concert.Concert
+import io.hhplus.concert.domain.seat.Seat
+import io.hhplus.concert.domain.seat.SeatStatus
 import io.hhplus.concert.domain.queue.Queue
 import jakarta.persistence.*
 import java.time.LocalDateTime
