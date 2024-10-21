@@ -39,10 +39,10 @@ class ScheduleTest {
         val user2 = User(id = 2L, name = "TEST2")
 
         seat1.reserve(user1)
-        seat1.confirm()
+        seat1.confirm(user1)
 
         seat2.reserve(user2)
-        seat2.confirm()
+        seat2.confirm(user2)
 
         val schedule = Schedule(seats = listOf(seat1, seat2))
 
