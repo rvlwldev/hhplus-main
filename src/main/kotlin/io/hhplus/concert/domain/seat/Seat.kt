@@ -34,8 +34,9 @@ class Seat(
         this.status = SeatStatus.WAIT
     }
 
-    fun confirm() {
-        if (this.user == null) throw IllegalStateException("유저 정보가 누락되었습니다.")
+    fun confirm(user: User) {
+        if (this.user != user) throw IllegalStateException("올바르지 않은 요청입니다.")
+        if (this.status != SeatStatus.WAIT) throw IllegalStateException("선점할 수 없는 좌석입니다.")
         this.status = SeatStatus.PAID
     }
 }

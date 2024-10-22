@@ -18,6 +18,9 @@ class Concert(
     @OneToMany(mappedBy = "concert", cascade = [CascadeType.ALL], orphanRemoval = true)
     val schedules: List<Schedule> = ArrayList(),
 
+    @Column(name = "price")
+    val price: Long = 0,
+
     @Column(name = "maximumAudienceCount")
     val maximumAudienceCount: Long = 50
 
