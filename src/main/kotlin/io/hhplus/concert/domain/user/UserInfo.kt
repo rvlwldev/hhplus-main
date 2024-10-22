@@ -1,6 +1,6 @@
 package io.hhplus.concert.domain.user
 
-class UserResponse(
+class UserInfo(
     val id: Long,
     val name: String,
     val point: Long

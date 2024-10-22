@@ -1,6 +1,6 @@
 package io.hhplus.concert.domain.queue
 
-data class QueueResponse(
+data class QueueInfo(
     val userId: Long,
     val rank: Long,
     val scheduleId: Long,

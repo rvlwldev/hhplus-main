@@ -9,11 +9,11 @@ class ScheduleService(private val repo: ScheduleRepository) {
         ?: throw IllegalArgumentException(NOT_FOUND_MESSAGE)
 
     fun getAll(concertId: Long) = repo.findAllByConcertId(concertId)
-        .map { ScheduleResponse(it) }
+        .map { ScheduleInfo(it) }
 
     fun getReservableList(concertId: Long) = repo.findAllByConcertId(concertId)
         .filter { it.isReservable() }
-        .map { ScheduleResponse(it) }
+        .map { ScheduleInfo(it) }
 
     fun isReservable(id: Long) = repo.findById(id)?.isReservable()
         ?: throw IllegalArgumentException(NOT_FOUND_MESSAGE)

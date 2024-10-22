@@ -8,7 +8,7 @@ class PointHistoryService(
     private val repo: PointHistoryRepository,
     private val userRepo: UserRepository
 ) {
-    fun save(userId: Long, amount: Long, type: PointHistoryType): PointHistoryResponse {
+    fun save(userId: Long, amount: Long, type: PointHistoryType): PointHistoryInfo {
         val user = userRepo.findById(userId)
             ?: throw IllegalArgumentException(USER_NOT_FOUND_MESSAGE)
 
@@ -16,11 +16,11 @@ class PointHistoryService(
             throw IllegalArgumentException(INVALID_AMOUNT_MESSAGE)
 
         return repo.save(PointHistory(user = user, amount = amount, type = type))
-            .run { PointHistoryResponse(this) }
+            .run { PointHistoryInfo(this) }
     }
 
     fun getAll(userId: Long) = repo.findAllByUserId(userId)
-        .map { PointHistoryResponse(it) }
+        .map { PointHistoryInfo(it) }
 
     companion object {
         private const val USER_NOT_FOUND_MESSAGE: String = "존재하지 않는 유저입니다."

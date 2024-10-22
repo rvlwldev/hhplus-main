@@ -6,13 +6,13 @@ import org.springframework.stereotype.Service
 class QueueService(private val repo: QueueRepository) {
 
     fun create(userId: Long, scheduleId: Long) = repo.save(userId, scheduleId)
-        .run { QueueResponse(this) }
+        .run { QueueInfo(this) }
 
     fun getByUserId(userId: Long) = repo.findByUserId(userId)
-        ?.run { QueueResponse(this) }
+        ?.run { QueueInfo(this) }
 
     fun getAllByScheduleId(scheduleId: Long) = repo.findAllByScheduleId(scheduleId)
-        .map { QueueResponse(it) }
+        .map { QueueInfo(it) }
 
     fun delete(queueId: Long) {
         val queue = repo.findById(queueId)

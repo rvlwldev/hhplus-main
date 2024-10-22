@@ -1,6 +1,6 @@
 package io.hhplus.concert.domain.seat
 
-class SeatResponse(
+class SeatInfo(
     val seatNumber: Int,
     val status: String
 ) {

@@ -3,7 +3,7 @@ package io.hhplus.concert.domain.schedule
 import io.hhplus.concert.domain.seat.SeatStatus
 import java.time.LocalDateTime
 
-data class ScheduleResponse(
+data class ScheduleInfo(
     val concertId: Long,
     val concertName: String,
     val sttAt: LocalDateTime,

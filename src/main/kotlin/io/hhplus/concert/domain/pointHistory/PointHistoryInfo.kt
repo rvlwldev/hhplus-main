@@ -2,7 +2,7 @@ package io.hhplus.concert.domain.pointHistory
 
 import java.time.LocalDateTime
 
-data class PointHistoryResponse(
+data class PointHistoryInfo(
     val userId: Long,
     val amount: Long,
     val type: String,

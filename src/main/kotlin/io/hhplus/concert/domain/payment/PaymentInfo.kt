@@ -2,7 +2,7 @@ package io.hhplus.concert.domain.payment
 
 import java.time.LocalDateTime
 
-data class PaymentResponse(
+data class PaymentInfo(
     val amount: Long,
     val createdAt: LocalDateTime,
     val paidAt: LocalDateTime?,

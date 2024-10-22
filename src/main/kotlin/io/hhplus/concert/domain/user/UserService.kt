@@ -8,17 +8,20 @@ class UserService(private val repo: UserRepository) {
 
     private final val NOT_FOUND_MESSAGE: String = "존재하지 않는 유저입니다."
 
-    fun save(user: User): UserResponse = UserResponse(repo.save(user))
-    fun save(name: String): UserResponse = UserResponse(repo.save(name))
+    fun save(user: User): UserInfo = UserInfo(repo.save(user))
+    fun save(name: String): UserInfo = UserInfo(repo.save(name))
 
-    fun get(id: Long): UserResponse {
+    fun get(id: Long): UserInfo {
         val user = repo.findById(id)
             ?: throw IllegalArgumentException(NOT_FOUND_MESSAGE)
 
-        return UserResponse(user)
+        return UserInfo(user)
     }
 
-    fun chargePoint(id: Long, amount: Long): UserResponse {
+    fun getPoint(userId: Long) = repo.findById(userId)?.point
+        ?: throw IllegalArgumentException(NOT_FOUND_MESSAGE)
+
+    fun chargePoint(id: Long, amount: Long): UserInfo {
         val user = repo.findById(id)
             ?: throw IllegalArgumentException(NOT_FOUND_MESSAGE)
 
@@ -27,7 +30,7 @@ class UserService(private val repo: UserRepository) {
         return this.save(user)
     }
 
-    fun usePoint(id: Long, amount: Long): UserResponse {
+    fun usePoint(id: Long, amount: Long): UserInfo {
         val user = repo.findById(id)
             ?: throw IllegalArgumentException(NOT_FOUND_MESSAGE)
 

@@ -8,21 +8,21 @@ class SeatService(
     private val repo: SeatRepository,
     private val userRepo: UserRepository
 ) {
-    fun get(scheduleId: Long, seatNumber: Int): SeatResponse {
+    fun get(scheduleId: Long, seatNumber: Int): SeatInfo {
         val seat = repo.findByScheduleIdAndNumber(scheduleId, seatNumber)
             ?: throw IllegalArgumentException(NOT_FOUND_MESSAGE)
 
-        return SeatResponse(seat)
+        return SeatInfo(seat)
     }
 
     fun getAll(scheduleId: Long) = repo.findAllByScheduleId(scheduleId)
-        .map { SeatResponse(it) }
+        .map { SeatInfo(it) }
 
     fun getAllReservable(scheduleId: Long) = repo.findAllByScheduleId(scheduleId)
         .filter { it.status == SeatStatus.EMPTY }
-        .map { SeatResponse(it) }
+        .map { SeatInfo(it) }
 
-    fun reserve(scheduleId: Long, userId: Long, seatNumber: Int): SeatResponse {
+    fun reserve(scheduleId: Long, userId: Long, seatNumber: Int): SeatInfo {
         val seat = repo.findAllByScheduleId(scheduleId)
             .find { it.seatNumber == seatNumber }
             ?: throw IllegalArgumentException(NOT_FOUND_MESSAGE)
@@ -36,10 +36,10 @@ class SeatService(
         seat.reserve(user)
 
         return repo.save(seat)
-            .run { SeatResponse(this) }
+            .run { SeatInfo(this) }
     }
 
-    fun confirm(scheduleId: Long, userId: Long, seatNumber: Int): SeatResponse {
+    fun confirm(scheduleId: Long, userId: Long, seatNumber: Int): SeatInfo {
         val seat = repo.findByScheduleIdAndNumber(scheduleId, seatNumber)
             ?: throw IllegalArgumentException(NOT_FOUND_MESSAGE)
 
@@ -49,7 +49,7 @@ class SeatService(
         seat.confirm(user)
 
         return repo.save(seat)
-            .run { SeatResponse(this) }
+            .run { SeatInfo(this) }
     }
 
     companion object {
