@@ -4,6 +4,7 @@ import io.hhplus.concert.domain.seat.SeatStatus
 import java.time.LocalDateTime
 
 data class ScheduleInfo(
+    val scheduleId: Long,
     val concertId: Long,
     val concertName: String,
     val sttAt: LocalDateTime,
@@ -11,6 +12,7 @@ data class ScheduleInfo(
     val reservableSeatCount: Long,
 ) {
     constructor(schedule: Schedule) : this(
+        scheduleId = schedule.id,
         concertId = schedule.concert.id,
         concertName = schedule.concert.name,
         sttAt = schedule.sttAt,

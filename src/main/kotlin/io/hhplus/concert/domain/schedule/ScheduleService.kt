@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 class ScheduleService(private val repo: ScheduleRepository) {
 
     fun get(id: Long) = repo.findById(id)
+        ?.run { ScheduleInfo(this) }
         ?: throw IllegalArgumentException(NOT_FOUND_MESSAGE)
 
     fun getAll(concertId: Long) = repo.findAllByConcertId(concertId)
