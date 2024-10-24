@@ -1,58 +1,54 @@
 package io.hhplus.concert.domain.payment
 
 import io.hhplus.concert.core.exception.BizException
-import io.hhplus.concert.domain.concert.repository.SeatRepository
-import io.hhplus.concert.domain.payment.dto.PaymentResponse
-import io.hhplus.concert.domain.payment.entity.PayStatus
-import io.hhplus.concert.domain.payment.entity.Payment
-import io.hhplus.concert.domain.queue.QueueRepository
-import io.hhplus.concert.domain.user.service.UserService
+import io.hhplus.concert.domain.schedule.ScheduleRepository
+import io.hhplus.concert.domain.user.UserRepository
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
+
+/**
+ * TODO : 241027 Payment 전면 수정(재설계), 플로우가 안맞음
+ *
+ * 1.
+ * Payment 도메인을 없애고
+ * Facade 에서 UserPoint-use 와 함께 결제 구현?
+ *
+ * 2.
+ * User 와 포인트를 분리
+ * 포인트 관리는 Wallet 으로 변경
+ * 히스토리도 쓸때마다 그냥 새로운 로우 생성하고
+ * 가져올때 OrderBy로?
+ *
+ * anyway: application/presentation 네이밍도 수정
+ *
+ * */
 
 @Service
 class PaymentService(
     private val repo: PaymentRepository,
-    private val queueRepository: QueueRepository,
-    private val seatRepository: SeatRepository,
-    private val userService: UserService
+    private val userRepo: UserRepository,
+    private val scheduleRepo: ScheduleRepository,
 ) {
-    private val NOT_FOUND_MESSAGE = "존재하지 않는 결제 정보입니다"
+    fun ready(userId: Long, amount: Long) {}
 
-    fun get(paymentId: Long) = repo.findById(paymentId)
-        ?: throw BizException(HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE)
+    fun pay(userId: Long, scheduleId: Long, seatNumber: Long): PaymentInfo {
+        val user = userRepo.findById(userId)
+            ?: throw BizException(HttpStatus.NOT_FOUND)
 
-    fun getList(userId: Long) = repo.findAllByUserId(userId)
+        val schedule = scheduleRepo.findById(scheduleId)
+            ?: throw BizException(HttpStatus.NOT_FOUND)
 
-    @Transactional
-    fun pay(userId: Long, scheduleId: Long, seatId: Long): PaymentResponse {
-        val queue = queueRepository.findPassQueueByUserIdAndScheduleId(userId, scheduleId)
-            ?: throw BizException(HttpStatus.REQUEST_TIMEOUT, "요청 시간이 초과되었습니다")
-
-        val seat = seatRepository.findByUserIdAndScheduleIdWithLock(userId, scheduleId)
-            ?: throw BizException(HttpStatus.BAD_REQUEST, "예약 가능한 좌석이 없습니다.")
-
-        seat.confirm()
-        seatRepository.save(seat)
-
-        val seatPrice = 70000L
-        userService.use(userId, seatPrice)
-
-        // 4. 결제 정보 저장
         val payment = Payment(
-            user = userService.get(userId),
-            status = PayStatus.SUCCESS,
-            point = seatPrice,
-            createdAt = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
+            user = user,
+            amount = schedule.concert.price,
+            createdAt = LocalDateTime.now(),
+            status = PaymentStatus.SUCCESS
         )
-        repo.save(payment)
 
-        queueRepository.deleteByUserIdAndScheduleId(userId, scheduleId)
-
-        return payment.toDTO()
+        return repo.save(payment)
+            .run { PaymentInfo(this) }
     }
 
+    fun getHistoryList(userId: Long) {}
 }
