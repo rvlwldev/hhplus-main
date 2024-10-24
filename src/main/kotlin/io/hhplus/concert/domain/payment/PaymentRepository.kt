@@ -6,4 +6,5 @@ interface PaymentRepository {
     fun findById(id: Long): Payment?
     fun findByUserId(userId: Long): Payment?
     fun findAllByStatus(status: PaymentStatus): List<Payment>
+  
 }

@@ -18,5 +18,4 @@ class ConcertService(private val repo: ConcertRepository) {
     companion object {
         private const val NOT_FOUND_MESSAGE = "존재하지 않는 콘서트 정보입니다."
     }
-
 }

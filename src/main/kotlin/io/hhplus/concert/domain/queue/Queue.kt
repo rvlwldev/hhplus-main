@@ -57,5 +57,5 @@ class Queue(
         if (now.isAfter(limit))
             throw IllegalStateException("예약 대기 시간이 만료되었습니다.")
     }
-
+    
 }

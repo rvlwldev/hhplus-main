@@ -18,5 +18,5 @@ class ConcertController(private val service: ConcertService) {
     @GetMapping("/{id}")
     fun getOne(@PathVariable id: Long) = service.get(id)
         .run { ConcertResponse(this) }
-
+        
 }
