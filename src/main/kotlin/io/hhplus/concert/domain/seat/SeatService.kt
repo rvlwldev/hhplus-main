@@ -8,7 +8,7 @@ class SeatService(
     private val repo: SeatRepository,
     private val userRepo: UserRepository
 ) {
-    fun get(scheduleId: Long, seatNumber: Int): SeatInfo {
+    fun get(scheduleId: Long, seatNumber: Long): SeatInfo {
         val seat = repo.findByScheduleIdAndNumber(scheduleId, seatNumber)
             ?: throw IllegalArgumentException(NOT_FOUND_MESSAGE)
 
@@ -22,7 +22,7 @@ class SeatService(
         .filter { it.status == SeatStatus.EMPTY }
         .map { SeatInfo(it) }
 
-    fun reserve(scheduleId: Long, userId: Long, seatNumber: Int): SeatInfo {
+    fun reserve(scheduleId: Long, userId: Long, seatNumber: Long): SeatInfo {
         val seat = repo.findAllByScheduleId(scheduleId)
             .find { it.seatNumber == seatNumber }
             ?: throw IllegalArgumentException(NOT_FOUND_MESSAGE)
@@ -39,7 +39,7 @@ class SeatService(
             .run { SeatInfo(this) }
     }
 
-    fun confirm(scheduleId: Long, userId: Long, seatNumber: Int): SeatInfo {
+    fun confirm(scheduleId: Long, userId: Long, seatNumber: Long): SeatInfo {
         val seat = repo.findByScheduleIdAndNumber(scheduleId, seatNumber)
             ?: throw IllegalArgumentException(NOT_FOUND_MESSAGE)
 

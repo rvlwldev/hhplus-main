@@ -11,10 +11,10 @@ class SeatRepositoryImpl(private val jpa: SeatJpaRepository) : SeatRepository {
     override fun save(seat: Seat): Seat =
         jpa.save(seat)
 
-    override fun save(schedule: Schedule, number: Int): Seat =
+    override fun save(schedule: Schedule, number: Long): Seat =
         jpa.save(Seat(schedule = schedule, seatNumber = number))
 
-    override fun findByScheduleIdAndNumber(scheduleId: Long, number: Int): Seat? =
+    override fun findByScheduleIdAndNumber(scheduleId: Long, number: Long): Seat? =
         jpa.findByScheduleIdAndNumber(scheduleId, number).orElse(null)
 
     override fun findAllByScheduleId(scheduleId: Long): List<Seat> =

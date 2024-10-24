@@ -13,7 +13,7 @@ class Seat(
     val id: Long = 0L,
 
     @Column(name = "number")
-    val seatNumber: Int = 0,
+    val seatNumber: Long = 0,
 
     @ManyToOne
     @JoinColumn(name = "schedule_id")

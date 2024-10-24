@@ -7,7 +7,7 @@ import java.util.*
 
 interface SeatJpaRepository : JpaRepository<Seat, Long> {
     @Query("SELECT s FROM Seat s WHERE s.schedule.id = :scheduleId AND s.seatNumber = :number")
-    fun findByScheduleIdAndNumber(scheduleId: Long, number: Int): Optional<Seat>
+    fun findByScheduleIdAndNumber(scheduleId: Long, number: Long): Optional<Seat>
 
     @Query("SELECT s FROM Seat s WHERE s.schedule.id = :scheduleId")
     fun findAllByScheduleId(scheduleId: Long): List<Seat>
