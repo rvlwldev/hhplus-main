@@ -1,6 +1,6 @@
 package io.hhplus.concert.application.reservation
 
-import io.hhplus.concert.application.support.TokenManager
+import io.hhplus.concert.config.support.TokenManager
 import io.hhplus.concert.domain.queue.QueueService
 import io.hhplus.concert.domain.schedule.ScheduleService
 import io.hhplus.concert.domain.user.UserService

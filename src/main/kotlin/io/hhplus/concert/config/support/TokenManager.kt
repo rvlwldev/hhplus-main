@@ -1,4 +1,4 @@
-package io.hhplus.concert.application.component
+package io.hhplus.concert.config.support
 
 import io.hhplus.concert.core.exception.BizException
 import io.jsonwebtoken.ExpiredJwtException
@@ -8,11 +8,16 @@ import io.jsonwebtoken.security.Keys
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import java.security.Key
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 @Component
-class TokenProvider {
+class TokenManager {
+
+    enum class Type {
+        RESERVATION, PAYMENT
+    }
 
     private val queueTokenSecret: Key = Keys.secretKeyFor(SignatureAlgorithm.HS256)
 
@@ -31,11 +36,13 @@ class TokenProvider {
             .compact()
     }
 
-    fun createQueueToken(userId: Long, scheduleId: Long, createdAt: ZonedDateTime): String {
+    fun createQueueToken(userId: Long, scheduleId: Long): String {
         val claims = HashMap<String, Long>()
         claims["userId"] = userId
         claims["scheduleId"] = scheduleId
-        claims["createdAt"] = createdAt.toEpochSecond()
+        claims["createdAt"] = LocalDateTime.now().toEpochSecond(
+            ZoneId.of("Asia/Seoul").rules.getOffset(LocalDateTime.now())
+        )
 
         return Jwts.builder()
             .setClaims(claims)
@@ -51,6 +58,9 @@ class TokenProvider {
         val claims = HashMap<String, Long>()
         claims["userId"] = userId
         claims["scheduleId"] = scheduleId
+        claims["createdAt"] = LocalDateTime.now().toEpochSecond(
+            ZoneId.of("Asia/Seoul").rules.getOffset(LocalDateTime.now())
+        )
 
         return Jwts.builder()
             .setClaims(claims)
@@ -61,14 +71,13 @@ class TokenProvider {
             .compact()
     }
 
-
     fun validateQueueToken(token: String): Map<String, Long> {
         try {
             val claims = Jwts.parserBuilder()
                 .setSigningKey(queueTokenSecret)
                 .build()
                 .parseClaimsJws(token)
-                .body  // Claims 반환
+                .body
 
             val resultMap = HashMap<String, Long>()
             resultMap["userId"] = claims["userId"].toString().toLong()
@@ -77,12 +86,11 @@ class TokenProvider {
 
             return resultMap
         } catch (e: ExpiredJwtException) {
-            throw BizException(HttpStatus.UNAUTHORIZED, "인증시간이 초과되었습니다.")
+            throw BizException(HttpStatus.REQUEST_TIMEOUT, "인증시간이 초과되었습니다.")
         } catch (e: Exception) {
-            throw BizException(HttpStatus.UNAUTHORIZED, "잘못된 요청입니다.")
+            throw BizException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.")
         }
     }
-
 
     fun validatePaymentToken(token: String): Map<String, Long> {
         try {
@@ -97,11 +105,10 @@ class TokenProvider {
             resultMap["scheduleId"] = claims["scheduleId"].toString().toLong()
 
             return resultMap
-
         } catch (e: ExpiredJwtException) {
             throw BizException(HttpStatus.REQUEST_TIMEOUT, "인증시간이 초과되었습니다.")
         } catch (e: Exception) {
-            throw BizException(HttpStatus.UNAUTHORIZED, "잘못된 요청입니다.")
+            throw BizException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.")
         }
 
     }

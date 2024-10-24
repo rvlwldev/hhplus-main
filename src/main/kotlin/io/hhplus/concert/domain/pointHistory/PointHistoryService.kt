@@ -1,6 +1,8 @@
 package io.hhplus.concert.domain.pointHistory
 
+import io.hhplus.concert.core.exception.BizException
 import io.hhplus.concert.domain.user.UserRepository
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
 @Service
@@ -10,10 +12,10 @@ class PointHistoryService(
 ) {
     fun save(userId: Long, amount: Long, type: PointHistoryType): PointHistoryInfo {
         val user = userRepo.findById(userId)
-            ?: throw IllegalArgumentException(USER_NOT_FOUND_MESSAGE)
+            ?: throw BizException(HttpStatus.NOT_FOUND, USER_NOT_FOUND_MESSAGE)
 
         if (amount < 1)
-            throw IllegalArgumentException(INVALID_AMOUNT_MESSAGE)
+            throw BizException(HttpStatus.BAD_REQUEST, INVALID_AMOUNT_MESSAGE)
 
         return repo.save(PointHistory(user = user, amount = amount, type = type))
             .run { PointHistoryInfo(this) }

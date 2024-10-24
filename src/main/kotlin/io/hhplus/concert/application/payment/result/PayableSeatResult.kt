@@ -1,4 +1,4 @@
-package io.hhplus.concert.application.payment
+package io.hhplus.concert.application.payment.result
 
 import io.hhplus.concert.domain.seat.SeatInfo
 
