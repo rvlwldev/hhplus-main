@@ -1,16 +1,16 @@
-INSERT INTO user (user_id, point) VALUES (1, 1000);
-INSERT INTO user (user_id, point) VALUES (2, 2000);
-
-INSERT INTO concert (concert_id, price, name) VALUES (1, 30000, "허재의 카드마술쇼");
-INSERT INTO concert (concert_id, price, name) VALUES (2, 50000, "하헌우의 라이브 코딩쇼");
-
-INSERT INTO concert_schedule
-(schedule_id, concert_id, start_date_time, end_date_time, maximum_audience_count)
-VALUES
-(1, 1, '2024-12-01 18:00:00', '2024-12-01 20:00:00', 50),
-(2, 1, '2024-12-02 18:00:00', '2024-12-02 20:00:00', 50),
-(3, 2, '2024-12-10 19:00:00', '2024-12-10 21:30:00', 50),
-(4, 2, '2024-12-11 19:00:00', '2024-12-11 21:30:00', 50);
+--INSERT INTO user (user_id, point) VALUES (1, 1000);
+--INSERT INTO user (user_id, point) VALUES (2, 2000);
+--
+--INSERT INTO concert (concert_id, price, name) VALUES (1, 30000, "허재의 카드마술쇼");
+--INSERT INTO concert (concert_id, price, name) VALUES (2, 50000, "하헌우의 라이브 코딩쇼");
+--
+--INSERT INTO concert_schedule
+--(schedule_id, concert_id, start_date_time, end_date_time, maximum_audience_count)
+--VALUES
+--(1, 1, '2024-12-01 18:00:00', '2024-12-01 20:00:00', 50),
+--(2, 1, '2024-12-02 18:00:00', '2024-12-02 20:00:00', 50),
+--(3, 2, '2024-12-10 19:00:00', '2024-12-10 21:30:00', 50),
+--(4, 2, '2024-12-11 19:00:00', '2024-12-11 21:30:00', 50);
 
 --INSERT INTO seat (seat_id, concert_schedule_id, user_id) VALUES
 --(1,  1, NULL), (2,  1, NULL), (3,  1, NULL), (4,  1, NULL), (5,  1, NULL),

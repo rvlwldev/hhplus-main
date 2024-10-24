@@ -22,9 +22,6 @@ spring:
   devtools:
     restart:
       enabled: true
-  sql:
-    init:
-      mode: always
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
