@@ -1,6 +1,6 @@
 package io.hhplus.concert.presentation.payment
 
-import io.hhplus.concert.application.payment.PaymentResult
+import io.hhplus.concert.application.payment.result.PaymentResult
 
 data class PaymentResponse(
     val paymentId: Long,

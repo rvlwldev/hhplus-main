@@ -1,5 +1,7 @@
 package io.hhplus.concert.application.payment
 
+import io.hhplus.concert.application.payment.result.PayableSeatResult
+import io.hhplus.concert.application.payment.result.PaymentResult
 import io.hhplus.concert.application.support.TokenManager
 import io.hhplus.concert.domain.payment.PaymentService
 import io.hhplus.concert.domain.seat.SeatService
