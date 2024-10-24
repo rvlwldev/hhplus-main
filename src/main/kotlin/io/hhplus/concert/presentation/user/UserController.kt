@@ -15,6 +15,7 @@ class UserController(
     private val pointHistoryService: PointHistoryService
 ) {
 
+    @PostMapping
     fun create(@RequestBody request: UserRequest) = service.save(request.name)
         .run { UserResponse(this) }
 

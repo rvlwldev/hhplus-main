@@ -1,4 +1,4 @@
-package io.hhplus.concert.application.support
+package io.hhplus.concert.config.support
 
 import io.hhplus.concert.core.exception.BizException
 import io.jsonwebtoken.ExpiredJwtException

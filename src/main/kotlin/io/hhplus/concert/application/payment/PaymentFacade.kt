@@ -2,7 +2,6 @@ package io.hhplus.concert.application.payment
 
 import io.hhplus.concert.application.payment.result.PayableSeatResult
 import io.hhplus.concert.application.payment.result.PaymentResult
-import io.hhplus.concert.application.support.TokenManager
 import io.hhplus.concert.domain.payment.PaymentService
 import io.hhplus.concert.domain.seat.SeatService
 import org.springframework.stereotype.Service
@@ -19,26 +18,19 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PaymentFacade(
-    private val tokenManager: TokenManager,
     private val seatService: SeatService,
     private val payService: PaymentService
 ) {
 
     @Transactional
-    fun getPayableSeatList(token: String): List<PayableSeatResult> {
-        val claims = tokenManager.validatePaymentToken(token)
-        return seatService.getAllReservable(claims.getValue("scheduleId"))
+    fun getPayableSeatList(scheduleId: Long): List<PayableSeatResult> {
+        return seatService.getAllReservable(scheduleId)
             .map { PayableSeatResult(it) }
     }
 
     @Transactional
-    fun pay(token: String, seatNumber: Long): PaymentResult {
-        val claims = tokenManager.validatePaymentToken(token)
-        val userId = claims.getValue("userId")
-        val scheduleId = claims.getValue("scheduleId")
-
+    fun pay(userId: Long, scheduleId: Long, seatNumber: Long): PaymentResult {
         return payService.pay(userId, scheduleId, seatNumber)
             .run { PaymentResult(this, scheduleId, seatNumber) }
     }
-
 }

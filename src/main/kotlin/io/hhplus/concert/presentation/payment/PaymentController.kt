@@ -8,19 +8,18 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/pay")
 class PaymentController(private val facade: PaymentFacade) {
 
-    @GetMapping("/seats")
-    fun getPayableSeatList(@RequestHeader("Authorization") token: String) = ResponseEntity.ok()
-        .body(facade.getPayableSeatList(token)
+    @GetMapping("/{scheduleId}/seats")
+    fun getPayableSeatList(@PathVariable("scheduleId") scheduleId: Long) = ResponseEntity.ok()
+        .body(facade.getPayableSeatList(scheduleId)
             .map { PayableSeatResponse(it) })
 
-    @PostMapping("/seats/{seatId}")
+    @PostMapping("user/{userId}/{scheduleId}/seats/{seatId}")
     fun pay(
-        @RequestHeader("Authorization") token: String,
+        @PathVariable("userId") userId: Long,
+        @PathVariable("scheduleId") scheduleId: Long,
         @PathVariable("seatId") seatId: Long
     ) = ResponseEntity.ok()
-        .body(
-            facade.pay(token, seatId)
-                .run { PaymentResponse(this) }
-        )
+        .body(facade.pay(userId, scheduleId, seatId)
+            .run { PaymentResponse(this) })
 
 }
