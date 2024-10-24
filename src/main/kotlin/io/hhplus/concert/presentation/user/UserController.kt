@@ -2,6 +2,9 @@ package io.hhplus.concert.presentation.user
 
 import io.hhplus.concert.domain.pointHistory.PointHistoryService
 import io.hhplus.concert.domain.user.UserService
+import io.hhplus.concert.presentation.user.request.PointRequest
+import io.hhplus.concert.presentation.user.request.UserRequest
+import io.hhplus.concert.presentation.user.response.UserResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 

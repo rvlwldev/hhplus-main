@@ -1,4 +1,4 @@
-package io.hhplus.concert.presentation.user
+package io.hhplus.concert.presentation.user.response
 
 import io.hhplus.concert.domain.user.UserInfo
 
