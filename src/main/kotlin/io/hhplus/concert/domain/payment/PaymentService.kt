@@ -30,7 +30,8 @@ class PaymentService(
     private val userRepo: UserRepository,
     private val scheduleRepo: ScheduleRepository,
 ) {
-    fun ready(userId: Long, amount: Long) {}
+//    fun ready(userId: Long, amount: Long) {}
+//    fun getHistoryList(userId: Long) {}
 
     fun pay(userId: Long, scheduleId: Long, seatNumber: Long): PaymentInfo {
         val user = userRepo.findById(userId)
@@ -50,5 +51,4 @@ class PaymentService(
             .run { PaymentInfo(this) }
     }
 
-    fun getHistoryList(userId: Long) {}
 }
