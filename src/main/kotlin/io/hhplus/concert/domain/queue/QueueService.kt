@@ -1,5 +1,7 @@
 package io.hhplus.concert.domain.queue
 
+import io.hhplus.concert.core.exception.BizException
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
 @Service
@@ -10,13 +12,14 @@ class QueueService(private val repo: QueueRepository) {
 
     fun getByUserId(userId: Long) = repo.findByUserId(userId)
         ?.run { QueueInfo(this) }
+        ?: throw BizException(HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE)
 
     fun getAllByScheduleId(scheduleId: Long) = repo.findAllByScheduleId(scheduleId)
         .map { QueueInfo(it) }
 
     fun delete(queueId: Long) {
         val queue = repo.findById(queueId)
-            ?: throw IllegalArgumentException(Companion.NOT_FOUND_MESSAGE)
+            ?: throw BizException(HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE)
 
         repo.delete(queue)
     }
