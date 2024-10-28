@@ -10,9 +10,6 @@ class ConcertRepositoryImpl(private val jpa: ConcertJpaRepository) : ConcertRepo
     override fun save(concert: Concert): Concert =
         jpa.save(concert)
 
-    override fun save(name: String): Concert =
-        jpa.save(Concert(name = name))
-
     override fun findById(id: Long): Concert? =
         jpa.findById(id).orElse(null)
 

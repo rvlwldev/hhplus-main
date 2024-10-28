@@ -2,7 +2,6 @@ package io.hhplus.concert.domain.queue
 
 interface QueueRepository {
     fun save(queue: Queue): Queue
-    fun save(userId: Long, scheduleId: Long): Queue
 
     fun findById(id: Long): Queue?
     fun findByUserId(userId: Long): Queue?

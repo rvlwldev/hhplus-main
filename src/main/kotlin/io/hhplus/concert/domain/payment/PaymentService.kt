@@ -19,6 +19,9 @@ class PaymentService(private val repo: PaymentRepository) {
         ?.run { PaymentInfo(this) }
         ?: throw BizException(BizError.Payment.NOT_FOUND)
 
+    fun getAllUnpaid() = repo.findAllByStatus(PaymentStatus.WAIT)
+        .map { PaymentInfo(it) }
+
     fun pay(userId: Long): PaymentInfo {
         val payment = repo.findByUserId(userId)
             ?: throw BizException(BizError.Payment.NOT_FOUND)

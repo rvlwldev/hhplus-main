@@ -10,9 +10,6 @@ class ScheduleRepositoryImpl(private val jpa: ScheduleJpaRepository) : ScheduleR
     override fun save(schedule: Schedule): Schedule =
         jpa.save(schedule)
 
-    override fun save(schedules: List<Schedule>): List<Schedule> =
-        jpa.saveAll(schedules)
-
     override fun findById(id: Long): Schedule? =
         jpa.findById(id).orElse(null)
 
