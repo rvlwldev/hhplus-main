@@ -24,11 +24,10 @@ class Payment(
     val id: Long = 0L,
 
     val userId: Long = 0L,
-    val scheduleId: Long = 0L,
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
-    updatedAt: LocalDateTime?,
-    status: PaymentStatus
+    updatedAt: LocalDateTime? = null,
+    status: PaymentStatus = PaymentStatus.WAIT
 ) {
     var updatedAt: LocalDateTime? = null
         protected set
