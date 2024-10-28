@@ -38,7 +38,7 @@ class Seat(
 
     fun confirmReservation() {
         if (userId == null)
-            throw BizException(BizError.Seat.NOT_ALLOW_TO_RESERVE)
+            throw BizException(BizError.Seat.TOO_LATE_TO_RESERVE)
         status = SeatStatus.PAID
     }
 
