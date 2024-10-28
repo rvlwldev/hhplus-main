@@ -2,14 +2,12 @@ package io.hhplus.concert.domain.queue
 
 data class QueueInfo(
     val userId: Long,
-    val rank: Long,
     val scheduleId: Long,
     val status: String
 ) {
     constructor(queue: Queue) : this(
-        userId = queue.user.id,
-        rank = queue.schedule.getUserRank(queue.user.id),
-        scheduleId = queue.schedule.id,
+        userId = queue.userId,
+        scheduleId = queue.scheduleId,
         status = queue.status.name
     )
 }

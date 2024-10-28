@@ -24,6 +24,7 @@ class Payment(
     val id: Long = 0L,
 
     val userId: Long = 0L,
+    val amount: Long = 0L,
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     updatedAt: LocalDateTime? = null,

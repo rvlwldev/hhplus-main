@@ -1,8 +1,8 @@
 package io.hhplus.concert.domain.pointHistory
 
+import io.hhplus.concert.core.exception.BizError
 import io.hhplus.concert.core.exception.BizException
 import io.hhplus.concert.domain.user.UserRepository
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
 @Service
@@ -12,10 +12,13 @@ class PointHistoryService(
 ) {
     fun save(userId: Long, amount: Long, type: PointHistoryType): PointHistoryInfo {
         val user = userRepo.findById(userId)
-            ?: throw BizException(HttpStatus.NOT_FOUND, USER_NOT_FOUND_MESSAGE)
+            ?: throw BizException(BizError.User.NOT_FOUND)
 
-        if (amount < 1)
-            throw BizException(HttpStatus.BAD_REQUEST, INVALID_AMOUNT_MESSAGE)
+        when (type) {
+            PointHistoryType.USE -> user.usePoint(amount)
+            PointHistoryType.CHARGE -> user.chargePoint(amount)
+            else -> throw BizException(BizError.Payment.FAILED)
+        }
 
         return repo.save(PointHistory(user = user, amount = amount, type = type))
             .run { PointHistoryInfo(this) }
@@ -23,9 +26,4 @@ class PointHistoryService(
 
     fun getAll(userId: Long) = repo.findAllByUserId(userId)
         .map { PointHistoryInfo(it) }
-
-    companion object {
-        private const val USER_NOT_FOUND_MESSAGE: String = "존재하지 않는 유저입니다."
-        private const val INVALID_AMOUNT_MESSAGE: String = "올바르지 않은 금액입니다."
-    }
 }

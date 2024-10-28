@@ -7,24 +7,27 @@ import org.springframework.stereotype.Service
 @Service
 class QueueService(private val repo: QueueRepository) {
 
-    fun create(userId: Long, scheduleId: Long): Queue {
+    fun create(userId: Long, scheduleId: Long): QueueInfo {
         if (repo.findByUserId(userId) != null)
             throw BizException(BizError.Queue.DUPLICATED)
 
-        val queue = Queue(userId, scheduleId)
-        return repo.save(queue)
+        return Queue(userId, scheduleId)
+            .let { repo.save(it) }
+            .run { QueueInfo(this) }
     }
 
     fun get(id: Long) = repo.findById(id)
+        ?.run { QueueInfo(this) }
         ?: throw BizException(BizError.Queue.NOT_FOUND)
 
-    fun pass(id: Long): Queue {
+    fun pass(id: Long): QueueInfo {
         val queue = repo.findById(id)
             ?: throw BizException(BizError.Queue.NOT_FOUND)
 
         queue.pass()
 
-        return queue
+        return repo.save(queue)
+            .run { QueueInfo(this) }
     }
 
     fun delete(id: Long) {

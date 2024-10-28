@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 @Service
 class SeatService(private val repo: SeatRepository) {
 
-    fun getOrCreate(scheduleId: Long, seatNumber: Long): Seat {
+    fun getOrCreate(scheduleId: Long, seatNumber: Long): SeatInfo {
         var seat = repo.findByScheduleIdAndNumber(scheduleId, seatNumber)
 
         if (seat == null) {
@@ -15,33 +15,33 @@ class SeatService(private val repo: SeatRepository) {
             repo.save(seat)
         }
 
-        return seat
+        return SeatInfo(seat)
     }
 
-    fun readyToReserve(id: Long, userId: Long): Seat {
+    fun readyToReserve(id: Long, userId: Long): SeatInfo {
         val seat = repo.findById(id)
             ?: throw BizException(BizError.Seat.NOT_FOUND)
 
         seat.readyToReserve(userId)
 
-        return repo.save(seat)
+        return SeatInfo(repo.save(seat))
     }
 
-    fun confirm(id: Long): Seat {
+    fun confirm(id: Long): SeatInfo {
         val seat = repo.findById(id)
             ?: throw BizException(BizError.Seat.NOT_FOUND)
 
         seat.confirmReservation()
 
-        return repo.save(seat)
+        return SeatInfo(repo.save(seat))
     }
 
-    fun cancel(id: Long): Seat {
+    fun cancel(id: Long): SeatInfo {
         val seat = repo.findById(id)
             ?: throw BizException(BizError.Seat.NOT_FOUND)
 
         seat.cancel()
 
-        return repo.save(seat)
+        return SeatInfo(repo.save(seat))
     }
 }
