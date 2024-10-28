@@ -7,6 +7,9 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 
+enum class SeatStatus {
+    EMPTY, WAIT, PAID
+}
 
 @Entity
 class Seat(
@@ -16,8 +19,8 @@ class Seat(
     val scheduleId: Long,
     val seatNumber: Long,
 
-    userId: Long?,
-    status: SeatStatus
+    userId: Long? = null,
+    status: SeatStatus = SeatStatus.EMPTY
 ) {
     var userId: Long? = null
         protected set
@@ -26,12 +29,16 @@ class Seat(
         protected set
 
     fun readyToReserve(userId: Long) {
+        if (status !== SeatStatus.EMPTY)
+            throw BizException(BizError.Seat.ALREADY_RESERVED)
+
         this.userId = userId
         status = SeatStatus.WAIT
     }
 
     fun confirmReservation() {
-        if (userId == null) throw BizException(BizError.Seat.NOT_ALLOW_TO_RESERVE)
+        if (userId == null)
+            throw BizException(BizError.Seat.NOT_ALLOW_TO_RESERVE)
         status = SeatStatus.PAID
     }
 
