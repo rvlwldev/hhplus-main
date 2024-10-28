@@ -1,4 +1,4 @@
-package io.hhplus.concert.config.support
+package io.hhplus.concert.application.support
 
 import io.hhplus.concert.core.exception.BizException
 import io.jsonwebtoken.ExpiredJwtException
@@ -36,13 +36,13 @@ class TokenManager {
             .compact()
     }
 
-    fun createQueueToken(userId: Long, scheduleId: Long): String {
-        val claims = HashMap<String, Long>()
+    fun createQueueToken(id: Long, userId: Long, scheduleId: Long, status: String): String {
+        val claims = HashMap<String, Any>()
+        claims["id"] = id
         claims["userId"] = userId
         claims["scheduleId"] = scheduleId
-        claims["createdAt"] = LocalDateTime.now().toEpochSecond(
-            ZoneId.of("Asia/Seoul").rules.getOffset(LocalDateTime.now())
-        )
+        claims["status"] = status
+        claims["createdAt"] = LocalDateTime.now().toString()
 
         return Jwts.builder()
             .setClaims(claims)
@@ -52,12 +52,13 @@ class TokenManager {
             .compact()
     }
 
-    fun createPaymentToken(userId: Long, scheduleId: Long): String {
+    fun createPaymentToken(userId: Long, scheduleId: Long, paymentId: Long): String {
         val now = Date()
         val expiryDate = Date(now.time + paymentTokenExpiration)
         val claims = HashMap<String, Long>()
         claims["userId"] = userId
         claims["scheduleId"] = scheduleId
+        claims["paymentId"] = paymentId
         claims["createdAt"] = LocalDateTime.now().toEpochSecond(
             ZoneId.of("Asia/Seoul").rules.getOffset(LocalDateTime.now())
         )
@@ -71,7 +72,7 @@ class TokenManager {
             .compact()
     }
 
-    fun validateQueueToken(token: String): Map<String, Long> {
+    fun validateQueueToken(token: String): Map<String, Any> {
         try {
             val claims = Jwts.parserBuilder()
                 .setSigningKey(queueTokenSecret)
@@ -79,10 +80,12 @@ class TokenManager {
                 .parseClaimsJws(token)
                 .body
 
-            val resultMap = HashMap<String, Long>()
+            val resultMap = HashMap<String, Any>()
+            resultMap["id"] = claims["id"].toString().toLong()
             resultMap["userId"] = claims["userId"].toString().toLong()
             resultMap["scheduleId"] = claims["scheduleId"].toString().toLong()
-            resultMap["createdAt"] = claims["createdAt"].toString().toLong()
+            resultMap["status"] = claims["status"].toString()
+            resultMap["createdAt"] = LocalDateTime.parse(claims["createdAt"].toString())
 
             return resultMap
         } catch (e: ExpiredJwtException) {
