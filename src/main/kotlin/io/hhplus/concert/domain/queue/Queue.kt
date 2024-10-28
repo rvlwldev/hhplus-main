@@ -29,8 +29,7 @@ class Queue(
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     updatedAt: LocalDateTime? = null,
-    status: QueueStatus
-
+    status: QueueStatus = QueueStatus.WAIT
 ) {
     var updatedAt: LocalDateTime? = null
         protected set
