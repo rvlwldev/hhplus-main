@@ -31,7 +31,7 @@ class BizError {
         val NOT_AVAILABLE = Pair(HttpStatus.BAD_REQUEST, "해당 좌석을 이용할 수 없습니다.")
         val ALREADY_RESERVED = Pair(HttpStatus.CONFLICT, "이미 예약된 좌석입니다.")
         val INVALID_SEAT_NUMBER = Pair(HttpStatus.BAD_REQUEST, "잘못된 좌석 번호입니다.")
-        val NOT_ALLOW_TO_RESERVE = Pair(HttpStatus.UNAUTHORIZED, "예약할 수 없습니다. 이미 취소되었거나 결제 대기시간이 초과되었습니다.")
+        val TOO_LATE_TO_RESERVE = Pair(HttpStatus.UNAUTHORIZED, "예약할 수 없습니다. 이미 취소되었거나 결제 대기시간이 초과되었습니다.")
     }
 
     object Payment {
