@@ -9,7 +9,7 @@ data class PointHistoryInfo(
     val createdAt: LocalDateTime
 ) {
     constructor(history: PointHistory) : this(
-        userId = history.user.id,
+        userId = history.userId,
         amount = history.amount,
         type = history.type.name,
         createdAt = history.createdAt

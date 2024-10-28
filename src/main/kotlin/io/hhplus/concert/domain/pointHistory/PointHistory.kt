@@ -1,6 +1,5 @@
 package io.hhplus.concert.domain.pointHistory
 
-import io.hhplus.concert.domain.user.User
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -24,7 +23,7 @@ class PointHistory(
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    val user: User = User(),
+    val userId: Long = 0L,
 
     @Column(name = "amount")
     val amount: Long = 0L,
