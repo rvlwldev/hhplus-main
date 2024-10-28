@@ -1,9 +1,14 @@
 package io.hhplus.concert.domain.user
 
-import jakarta.persistence.*
+import io.hhplus.concert.core.exception.BizError
+import io.hhplus.concert.core.exception.BizException
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
 
 @Entity
-@Table(name = "users")
 class User(
 
     @Id
@@ -23,17 +28,17 @@ class User(
 
     fun usePoint(amount: Long) {
         if (amount <= 0)
-            throw IllegalArgumentException("1보다 작은 포인트는 사용할 수 없습니다.")
+            throw BizException(BizError.Payment.INVALID_AMOUNT)
 
         if (point < amount)
-            throw IllegalArgumentException("보유 포인트가 부족합니다.")
+            throw BizException(BizError.Payment.NOT_ENOUGH)
 
         point -= amount
     }
 
     fun chargePoint(amount: Long) {
         if (amount <= 0)
-            throw IllegalArgumentException("1보다 작은 포인트는 충전할 수 없습니다.")
+            throw BizException(BizError.Payment.INVALID_AMOUNT)
 
         point += amount
     }
