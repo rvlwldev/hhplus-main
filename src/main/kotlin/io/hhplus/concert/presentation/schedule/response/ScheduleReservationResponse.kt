@@ -1,4 +1,4 @@
-package io.hhplus.concert.presentation.schedule
+package io.hhplus.concert.presentation.schedule.response
 
 import io.hhplus.concert.application.reservation.ReservationResult
 import java.time.LocalDateTime

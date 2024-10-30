@@ -1,11 +1,16 @@
 package io.hhplus.concert.presentation.queue
 
-import io.hhplus.concert.application.reservation.ReservationCriteria
 import io.hhplus.concert.application.reservation.ReservationFacade
-import io.hhplus.concert.presentation.schedule.ScheduleReservationRequest
-import io.hhplus.concert.presentation.schedule.ScheduleReservationResponse
+import io.hhplus.concert.presentation.schedule.request.ScheduleReservationRequest
+import io.hhplus.concert.presentation.schedule.response.ScheduleReservationResponse
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
 @RestController
@@ -18,8 +23,7 @@ class QueueController(private val facade: ReservationFacade) {
         @PathVariable("scheduleId") scheduleId: Long,
         @RequestBody request: ScheduleReservationRequest
     ): ResponseEntity<Any> {
-        val criteria = ReservationCriteria(request.userId, concertId, scheduleId)
-        val response = facade.reserve(criteria)
+        val response = facade.reserve(request.userId, scheduleId)
             .run { ScheduleReservationResponse(this) }
 
         val uri = URI.create("/concerts/{concertId}/schedules/{scheduleId}/reserve")

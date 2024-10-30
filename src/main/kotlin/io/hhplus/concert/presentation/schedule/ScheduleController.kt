@@ -1,6 +1,7 @@
 package io.hhplus.concert.presentation.schedule
 
 import io.hhplus.concert.domain.schedule.ScheduleService
+import io.hhplus.concert.presentation.schedule.response.ScheduleResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -24,9 +25,13 @@ class ScheduleController(private val service: ScheduleService) {
         .body(service.get(scheduleId)
             .run { ScheduleResponse(this) })
 
+    @GetMapping("/{scheduleId}/reservable")
+    fun getReservable(@PathVariable("scheduleId") scheduleId: Long) = ResponseEntity.ok()
+        .body(service.isReservable(scheduleId))
+
     @GetMapping("/reservable")
     fun getReservableList(@PathVariable("concertId") concertId: Long) = ResponseEntity.ok()
-        .body(service.getReservableList(concertId)
-            .map { ScheduleResponse(it) })
+        .body(service.getReservableList(concertId))
+
 
 }

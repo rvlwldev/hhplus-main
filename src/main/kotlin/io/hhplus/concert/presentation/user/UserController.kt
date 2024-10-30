@@ -4,6 +4,8 @@ import io.hhplus.concert.domain.pointHistory.PointHistoryService
 import io.hhplus.concert.domain.user.UserService
 import io.hhplus.concert.presentation.user.request.PointRequest
 import io.hhplus.concert.presentation.user.request.UserRequest
+import io.hhplus.concert.presentation.user.response.PointHistoryResponse
+import io.hhplus.concert.presentation.user.response.PointResponse
 import io.hhplus.concert.presentation.user.response.UserResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -25,10 +27,11 @@ class UserController(
 
     @PatchMapping("/{id}")
     fun chargePoint(userId: Long, request: PointRequest) = ResponseEntity.ok()
-        .body(service.chargePoint(userId, request.amount))
+        .body(PointResponse(service.chargePoint(userId, request.amount).point))
 
     @GetMapping("/{id}/histories")
     fun getPointHistoryList(userId: Long) = ResponseEntity.ok()
-        .body(pointHistoryService.getAll(userId))
+        .body(pointHistoryService.getAll(userId)
+            .map { PointHistoryResponse(it) })
 
 }
