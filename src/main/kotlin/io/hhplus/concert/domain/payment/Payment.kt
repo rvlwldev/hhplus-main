@@ -40,8 +40,11 @@ class Payment(
         val now = LocalDateTime.now()
 
         if (createdAt.plusSeconds(PAY_TIME_OUT_SECONDS) < now)
-            throw BizException(BizError.Queue.TIME_OUT)
+            throw BizException(BizError.Payment.TIME_OUT)
 
+        if (status != PaymentStatus.WAIT)
+            throw BizException(BizError.Payment.FAILED)
+        
         updatedAt = now
         status = PaymentStatus.PAID
     }

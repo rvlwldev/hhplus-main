@@ -11,7 +11,7 @@ data class PaymentResult(
     val status: String
 ) {
     constructor(info: PaymentInfo, scheduleId: Long, seatNumber: Long) : this(
-        paymentId = info.paymentId,
+        paymentId = info.id,
         scheduleId = scheduleId,
         seatNumber = seatNumber,
         amount = info.amount,

@@ -1,6 +1,7 @@
 package io.hhplus.concert.application.reservation
 
 import io.hhplus.concert.application.support.TokenManager
+import io.hhplus.concert.domain.concert.ConcertService
 import io.hhplus.concert.domain.payment.PaymentService
 import io.hhplus.concert.domain.queue.QueueService
 import io.hhplus.concert.domain.schedule.ScheduleService
@@ -12,10 +13,12 @@ import org.springframework.transaction.annotation.Transactional
 class ReservationFacade(
     private val tokenManager: TokenManager,
     private val userService: UserService,
+    private val concertService: ConcertService,
     private val scheduleService: ScheduleService,
     private val queueService: QueueService,
     private val paymentService: PaymentService,
 ) {
+
     @Transactional
     fun reserve(userId: Long, scheduleId: Long): ReservationResult {
         val user = userService.get(userId)
@@ -36,11 +39,13 @@ class ReservationFacade(
         val scheduleId = claims.getValue("scheduleId") as Long
         val status = claims.getValue("status") as String
 
+        val schedule = scheduleService.get(scheduleId)
+        val concert = concertService.get(schedule.id)
         val queue = queueService.get(id)
 
         return if (queue.status === status)
             ReservationResult(token, TokenManager.Type.RESERVATION, scheduleId)
-        else paymentService.create(userId)
+        else paymentService.create(userId, concert.price) // 대기중인 대기열의 상태가 달라졌을때 (Pass)
             .let { payment -> tokenManager.createPaymentToken(userId, scheduleId, payment.id) }
             .run { ReservationResult(this, TokenManager.Type.PAYMENT, scheduleId) }
     }
