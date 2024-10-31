@@ -36,7 +36,7 @@ class BizError {
     }
 
     object Payment {
-        val DUPLICATED = Pair(HttpStatus.CONFLICT, "이미 진행중인 결제가 존재합니다.")
+        val DUPLICATED = Pair(HttpStatus.CONFLICT, "이미 결제한 기록이 존재합니다.")
         val NOT_FOUND = Pair(HttpStatus.NOT_FOUND, "결제를 찾을 수 없습니다.")
         val NOT_ENOUGH = Pair(HttpStatus.BAD_REQUEST, "보유 포인트가 부족합니다.")
         val INVALID_AMOUNT = Pair(HttpStatus.BAD_REQUEST, "올바르지 않은 포인트 사용입니다.")

@@ -51,7 +51,7 @@ class PaymentFacade(
             throw BizException(BizError.Payment.ALREADY_IN_PROGRESS)
 
         try {
-            if (paymentService.getLatestByUserId(userId).status == PaymentStatus.WAIT.name)
+            if (paymentService.getLatestByUserId(userId).status == PaymentStatus.PAID.name)
                 throw BizException(BizError.Payment.DUPLICATED)
 
             val seat = seatService.getOrCreate(userId, seatNumber)
