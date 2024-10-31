@@ -10,7 +10,7 @@ import jakarta.persistence.Transient
 import java.time.LocalDateTime
 
 enum class PaymentStatus {
-    WAIT, PAID
+    WAIT, PAID, TIME_OUT
 }
 
 @Entity
@@ -30,10 +30,10 @@ class Payment(
     updatedAt: LocalDateTime? = null,
     status: PaymentStatus = PaymentStatus.WAIT
 ) {
-    var updatedAt: LocalDateTime? = null
+    var updatedAt: LocalDateTime? = updatedAt
         protected set
 
-    var status = PaymentStatus.WAIT
+    var status = status
         protected set
 
     fun pay() {
@@ -44,8 +44,19 @@ class Payment(
 
         if (status != PaymentStatus.WAIT)
             throw BizException(BizError.Payment.FAILED)
-        
+
         updatedAt = now
         status = PaymentStatus.PAID
+    }
+
+    fun isPayable(): Boolean {
+        val now = LocalDateTime.now();
+
+        val result = status == PaymentStatus.WAIT
+                && createdAt.plusSeconds(PAY_TIME_OUT_SECONDS).isBefore(now)
+
+        if (!result) status = PaymentStatus.TIME_OUT
+
+        return result
     }
 }
