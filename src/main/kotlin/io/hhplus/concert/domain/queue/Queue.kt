@@ -11,8 +11,6 @@ import jakarta.persistence.Transient
 import java.time.LocalDateTime
 
 
-// TODO : 남은 대기열 (Rank) 구하기
-
 enum class QueueStatus {
     WAIT, PASS
 }
@@ -49,7 +47,12 @@ class Queue(
         updatedAt = now
         status = QueueStatus.PASS
     }
+
+    fun isTimeOut(): Boolean {
+        return status == QueueStatus.PASS
+                && updatedAt!!.plusSeconds(QUEUE_TIME_OUT_SECONDS).isBefore(LocalDateTime.now())
+    }
+
+
+
 }
-
-
-
