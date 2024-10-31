@@ -2,7 +2,6 @@ package io.hhplus.concert.domain.schedule
 
 import io.hhplus.concert.core.exception.BizError
 import io.hhplus.concert.core.exception.BizException
-import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -14,7 +13,6 @@ class Schedule(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "schedule_id")
     val id: Long = 0L,
 
     val concertId: Long,

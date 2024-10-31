@@ -7,8 +7,6 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
 import java.time.LocalDateTime
 
 enum class PointHistoryType {
@@ -21,8 +19,6 @@ class PointHistory(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
     val userId: Long = 0L,
 
     @Column(name = "amount")
