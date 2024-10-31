@@ -12,10 +12,10 @@ interface QueueJpaRepository : JpaRepository<Queue, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     fun save(queue: Queue): Queue
 
-    @Query("SELECT q FROM Queue q WHERE q.user.id = :userId")
+    @Query("SELECT q FROM Queue q WHERE q.userId = :userId")
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     fun findByUserId(userId: Long): Optional<Queue>
 
-    @Query("SELECT q FROM Queue q WHERE q.schedule.id = :scheduleId")
+    @Query("SELECT q FROM Queue q WHERE q.scheduleId = :scheduleId")
     fun findAllByScheduleId(scheduleId: Long): List<Queue>
 }

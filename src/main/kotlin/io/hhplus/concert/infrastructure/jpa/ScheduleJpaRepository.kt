@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
 interface ScheduleJpaRepository : JpaRepository<Schedule, Long> {
-    @Query("SELECT s FROM Schedule s WHERE s.concert.id = :concertId")
+    @Query("SELECT s FROM Schedule s WHERE s.concertId = :concertId")
     fun findAllByConcertId(concertId: Long): List<Schedule>
 }

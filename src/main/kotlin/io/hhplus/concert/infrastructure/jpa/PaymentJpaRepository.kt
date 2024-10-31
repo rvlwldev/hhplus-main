@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query
 import java.util.*
 
 interface PaymentJpaRepository : JpaRepository<Payment, Long> {
-    @Query("SELECT p FROM Payment p WHERE p.user.id = :userId")
+    @Query("SELECT p FROM Payment p WHERE p.userId = :userId")
     fun findByUserId(userId: Long): Optional<Payment>
 
     @Query("SELECT p FROM Payment p WHERE p.status = :status")

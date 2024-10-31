@@ -14,7 +14,7 @@ class PaymentRepositoryImpl(private val jpa: PaymentJpaRepository) : PaymentRepo
     override fun findById(id: Long): Payment? =
         jpa.findById(id).orElse(null)
 
-    override fun findByUserId(userId: Long): Payment? =
+    override fun findLatestByUserId(userId: Long): Payment? =
         jpa.findByUserId(userId).orElse(null)
 
     override fun findAllByStatus(status: PaymentStatus): List<Payment> =

@@ -6,9 +6,9 @@ import org.springframework.data.jpa.repository.Query
 import java.util.*
 
 interface SeatJpaRepository : JpaRepository<Seat, Long> {
-    @Query("SELECT s FROM Seat s WHERE s.schedule.id = :scheduleId AND s.seatNumber = :number")
-    fun findByScheduleIdAndNumber(scheduleId: Long, number: Long): Optional<Seat>
+    @Query("SELECT s FROM Seat s WHERE s.scheduleId = :scheduleId AND s.seatNumber = :seatNumber")
+    fun findByScheduleIdAndNumber(scheduleId: Long, seatNumber: Long): Optional<Seat>
 
-    @Query("SELECT s FROM Seat s WHERE s.schedule.id = :scheduleId")
+    @Query("SELECT s FROM Seat s WHERE s.scheduleId = :scheduleId")
     fun findAllByScheduleId(scheduleId: Long): List<Seat>
 }
