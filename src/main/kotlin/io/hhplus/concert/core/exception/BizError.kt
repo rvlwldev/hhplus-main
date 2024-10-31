@@ -16,7 +16,7 @@ class BizError {
 
     object Queue {
         val NOT_FOUND = Pair(HttpStatus.NOT_FOUND, "해당 대기열을 찾을 수 없습니다.")
-        val DUPLICATED = Pair(HttpStatus.NOT_FOUND, "이미 다른 대기열 요청이 처리중 입니다.")
+        val DUPLICATED = Pair(HttpStatus.CONFLICT, "이미 다른 대기열 요청이 처리중 입니다.")
         val TIME_OUT = Pair(HttpStatus.BAD_REQUEST, "대기열 시간이 초과되었습니다.")
     }
 
