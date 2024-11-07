@@ -26,7 +26,7 @@ class ReservationFacadeV2(
         val schedule = scheduleService.get(scheduleId)
         val now = LocalDateTime.now()
 
-        if (schedule.sttReserveAt < now || now <= schedule.endReserveAt)
+        if (schedule.sttReserveAt > now || now >= schedule.endReserveAt)
             throw BizException(BizError.Queue.CONNECTION_ERROR)
 
         queue.offer("WAIT::$scheduleId", userId)
