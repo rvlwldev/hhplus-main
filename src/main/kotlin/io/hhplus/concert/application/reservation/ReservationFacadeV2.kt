@@ -65,7 +65,7 @@ class ReservationFacadeV2(
                 "PASS",
                 scheduleId,
                 queue.rank("WAIT::$scheduleId", userId)
-            )
+            ).also { queue.poll("WAIT::$scheduleId", userId) }
         }
 
     }
