@@ -24,24 +24,10 @@ class TokenManager {
     private val paymentTokenSecret: Key = Keys.secretKeyFor(SignatureAlgorithm.HS256)
     private val paymentTokenExpiration: Long = 20 * 60 * 1000L // 20분
 
-    private fun createToken(userId: Long, secret: Key, expiration: Long): String {
-        val now = Date()
-        val expiryDate = Date(now.time + expiration)
-
-        return Jwts.builder()
-            .setSubject(userId.toString())
-            .setIssuedAt(now)
-            .setExpiration(expiryDate)
-            .signWith(secret)
-            .compact()
-    }
-
-    fun createQueueToken(id: Long, userId: Long, scheduleId: Long, status: String): String {
+    fun createQueueToken(userId: Long, scheduleId: Long): String {
         val claims = HashMap<String, Any>()
-        claims["id"] = id
         claims["userId"] = userId
         claims["scheduleId"] = scheduleId
-        claims["status"] = status
         claims["createdAt"] = LocalDateTime.now().toString()
 
         return Jwts.builder()
@@ -81,17 +67,15 @@ class TokenManager {
                 .body
 
             val resultMap = HashMap<String, Any>()
-            resultMap["id"] = claims["id"].toString().toLong()
             resultMap["userId"] = claims["userId"].toString().toLong()
             resultMap["scheduleId"] = claims["scheduleId"].toString().toLong()
-            resultMap["status"] = claims["status"].toString()
             resultMap["createdAt"] = LocalDateTime.parse(claims["createdAt"].toString())
 
             return resultMap
         } catch (e: ExpiredJwtException) {
             throw BizException(HttpStatus.REQUEST_TIMEOUT, "인증시간이 초과되었습니다.")
         } catch (e: Exception) {
-            throw BizException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.")
+            throw BizException(HttpStatus.INTERNAL_SERVER_ERROR, "잘못된 요청입니다.")
         }
     }
 
