@@ -1,7 +1,7 @@
 package io.hhplus.concert.application.payment
 
 import io.hhplus.concert.application.payment.result.PaymentResult
-import io.hhplus.concert.application.support.RedisManager
+import io.hhplus.concert.application.support.DistributedLocker
 import io.hhplus.concert.core.exception.BizError
 import io.hhplus.concert.core.exception.BizException
 import io.hhplus.concert.domain.concert.ConcertService
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PaymentFacade(
-    private val redisManager: RedisManager,
+    private val distributedLocker: DistributedLocker,
     private val concertService: ConcertService,
     private val scheduleService: ScheduleService,
     private val seatService: SeatService,
@@ -35,7 +35,7 @@ class PaymentFacade(
         var retryCount = 0
 
         while (lockVal == null && retryCount < maxRetries) {
-            lockVal = redisManager.tryLock(lockKey)
+            lockVal = distributedLocker.tryLock(lockKey)
 
             if (lockVal == null) {
                 val seat = seatService.get(scheduleId, seatNumber)
@@ -63,7 +63,7 @@ class PaymentFacade(
             return paymentService.create(userId, concert.price)
                 .run { PaymentResult(this, scheduleId, seatNumber) }
         } finally {
-            redisManager.releaseLock(lockKey, lockVal)
+            distributedLocker.releaseLock(lockKey, lockVal)
         }
 
     }
