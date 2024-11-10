@@ -6,7 +6,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 @Component
-class RedisManager(private val redisTemplate: RedisTemplate<String, String>) {
+class DistributedLocker(private val redisTemplate: RedisTemplate<String, String>) {
     private val lockExpirationSeconds = 5L
 
     fun tryLock(lockKey: String): String? {

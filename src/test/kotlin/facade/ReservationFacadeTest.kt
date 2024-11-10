@@ -2,7 +2,7 @@ package facade
 
 import io.hhplus.concert.ConcertApplication
 import io.hhplus.concert.application.reservation.ReservationFacade
-import io.hhplus.concert.application.support.RedisManager
+import io.hhplus.concert.application.support.DistributedLocker
 import io.hhplus.concert.application.support.TokenManager
 import io.hhplus.concert.core.exception.BizError
 import io.hhplus.concert.core.exception.BizException
@@ -33,7 +33,7 @@ class ReservationFacadeTest {
     private lateinit var reservationFacade: ReservationFacade
 
     @MockBean
-    private lateinit var redisManager: RedisManager
+    private lateinit var distributedLocker: DistributedLocker
 
     @MockBean
     private lateinit var tokenManager: TokenManager
@@ -60,14 +60,14 @@ class ReservationFacadeTest {
         given(userService.get(userId)).willReturn(user)
         given(scheduleService.get(scheduleId)).willReturn(schedule)
         given(queueService.create(userId, scheduleId)).willReturn(queue)
-        given(tokenManager.createQueueToken(queue.id, userId, scheduleId, queue.status))
+        given(tokenManager.createQueueToken(queue.id, userId))
             .willReturn("test-token")
     }
 
     @Test
     @Transactional
     fun `락이 없을때, 대기열 토큰 반환 성공`() {
-        given(redisManager.tryLock(lockKey)).willReturn("lockValue")
+        given(distributedLocker.tryLock(lockKey)).willReturn("lockValue")
 
         val result = reservationFacade.reserve(userId, scheduleId)
         assertNotNull(result.token)
@@ -76,7 +76,7 @@ class ReservationFacadeTest {
     @Test
     @Transactional
     fun `락 획득 실패 시 TOO_MANY_REQUEST 예외 발생`() {
-        given(redisManager.tryLock(lockKey)).willReturn(null)
+        given(distributedLocker.tryLock(lockKey)).willReturn(null)
 
         val exception = assertThrows<BizException> {
             reservationFacade.reserve(userId, scheduleId)

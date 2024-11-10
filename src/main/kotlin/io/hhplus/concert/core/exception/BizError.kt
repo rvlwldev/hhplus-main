@@ -15,8 +15,10 @@ class BizError {
     }
 
     object Queue {
+        val CONNECTION_ERROR = Pair(HttpStatus.NOT_ACCEPTABLE, "대기열 서비스에 접속할 수 없습니다.\n잠시 후 다시 시도해 주세요.")
         val NOT_FOUND = Pair(HttpStatus.NOT_FOUND, "해당 대기열을 찾을 수 없습니다.")
         val DUPLICATED = Pair(HttpStatus.CONFLICT, "이미 다른 대기열 요청이 처리중 입니다.")
+        val NO_TIME_TO_JOIN =  Pair(HttpStatus.BAD_REQUEST, "예약가능시간이 아닙니다.")
         val TIME_OUT = Pair(HttpStatus.BAD_REQUEST, "대기열 시간이 초과되었습니다.")
     }
 

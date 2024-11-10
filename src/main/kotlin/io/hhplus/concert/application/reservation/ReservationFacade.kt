@@ -1,6 +1,7 @@
 package io.hhplus.concert.application.reservation
 
-import io.hhplus.concert.application.support.RedisManager
+import io.hhplus.concert.application.reservation.dto.ReservationResult
+import io.hhplus.concert.application.support.DistributedLocker
 import io.hhplus.concert.application.support.TokenManager
 import io.hhplus.concert.core.exception.BizError
 import io.hhplus.concert.core.exception.BizException
@@ -16,7 +17,7 @@ import org.springframework.transaction.support.TransactionTemplate
 @Service
 class ReservationFacade(
     private val tokenManager: TokenManager,
-    private val redisManager: RedisManager,
+    private val locker: DistributedLocker,
     private val userService: UserService,
     private val concertService: ConcertService,
     private val scheduleService: ScheduleService,
@@ -34,7 +35,7 @@ class ReservationFacade(
         var retryCount = 0
 
         while (lockVal == null && retryCount < maxRetries) {
-            lockVal = redisManager.tryLock(lockKey)
+            lockVal = locker.tryLock(lockKey)
 
             if (lockVal == null) {
                 retryCount++
@@ -51,12 +52,12 @@ class ReservationFacade(
                 val schedule = scheduleService.get(scheduleId)
 
                 val queue = queueService.create(user.id, schedule.id)
-                val token = tokenManager.createQueueToken(queue.id, user.id, schedule.id, queue.status)
+//                val token = tokenManager.createQueueToken(queue.id, user.id, schedule.id, queue.status)
 
-                return@execute ReservationResult(token, TokenManager.Type.RESERVATION, schedule.id)
+                return@execute ReservationResult("token", TokenManager.Type.RESERVATION, schedule.id)
             } ?: throw BizException(HttpStatus.INTERNAL_SERVER_ERROR, "대기열에 진입할 수 없습니다.")
         } finally {
-            redisManager.releaseLock(lockKey, lockVal)
+            locker.releaseLock(lockKey, lockVal)
         }
     }
 

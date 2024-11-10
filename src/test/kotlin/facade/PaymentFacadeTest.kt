@@ -3,7 +3,7 @@ package facade
 import io.hhplus.concert.ConcertApplication
 import io.hhplus.concert.application.payment.PaymentFacade
 import io.hhplus.concert.application.payment.result.PaymentResult
-import io.hhplus.concert.application.support.RedisManager
+import io.hhplus.concert.application.support.DistributedLocker
 import io.hhplus.concert.core.exception.BizError
 import io.hhplus.concert.core.exception.BizException
 import io.hhplus.concert.domain.concert.Concert
@@ -39,7 +39,7 @@ class PaymentIntegrationTest {
     private lateinit var paymentFacade: PaymentFacade
 
     @MockBean
-    private lateinit var redisManager: RedisManager
+    private lateinit var distributedLocker: DistributedLocker
 
     @MockBean
     private lateinit var concertService: ConcertService
@@ -76,7 +76,7 @@ class PaymentIntegrationTest {
     @Transactional
     fun `락이 없을때, 결제성공`() {
         val lockValue = "lockValue"
-        given(redisManager.tryLock(lockKey)).willReturn(lockValue)
+        given(distributedLocker.tryLock(lockKey)).willReturn(lockValue)
 
         val result: PaymentResult = paymentFacade.ready(userId, scheduleId, seatNumber)
 
@@ -84,12 +84,12 @@ class PaymentIntegrationTest {
         assertEquals(scheduleId, result.scheduleId)
         assertEquals(seatNumber, result.seatNumber)
 
-        Mockito.verify(redisManager).releaseLock(lockKey, lockValue)
+        Mockito.verify(distributedLocker).releaseLock(lockKey, lockValue)
     }
 
     @Test
     fun `락 획득 실패 시, ALREADY_IN_PROGRESS 예외 발생`() {
-        given(redisManager.tryLock(lockKey)).willReturn(null)
+        given(distributedLocker.tryLock(lockKey)).willReturn(null)
 
         val exception = assertThrows<BizException> {
             paymentFacade.ready(userId, scheduleId, seatNumber)

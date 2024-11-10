@@ -1,6 +1,6 @@
 package io.hhplus.concert.presentation.schedule.response
 
-import io.hhplus.concert.application.reservation.ReservationResult
+import io.hhplus.concert.application.reservation.dto.ReservationResult
 import java.time.LocalDateTime
 
 data class ScheduleReservationResponse(

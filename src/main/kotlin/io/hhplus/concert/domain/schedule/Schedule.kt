@@ -17,9 +17,10 @@ class Schedule(
 
     val concertId: Long,
     val sttAt: LocalDateTime = LocalDateTime.now(),
-    val endAt: LocalDateTime = LocalDateTime.now(),
+    val endAt: LocalDateTime = LocalDateTime.now().plusHours(2),
+    val sttReserveAt: LocalDateTime = sttAt.minusWeeks(1),
+    val endReserveAt: LocalDateTime = sttAt.minusWeeks(1),
     val maximumReservableCount: Long = 0L,
-
     reservableCount: Long
 ) {
     var reservableCount = 50
@@ -34,4 +35,5 @@ class Schedule(
         if (reservableCount >= maximumReservableCount) throw BizException(BizError.Schedule.NOT_ALLOWED_CANCEL)
         reservableCount--
     }
+
 }

@@ -1,4 +1,4 @@
-package io.hhplus.concert.application.reservation
+package io.hhplus.concert.application.reservation.dto
 
 data class ReservationCriteria(
     val userId: Long,

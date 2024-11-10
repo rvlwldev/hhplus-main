@@ -1,4 +1,4 @@
-package io.hhplus.concert.application.reservation
+package io.hhplus.concert.application.reservation.dto
 
 import io.hhplus.concert.application.support.TokenManager
 
