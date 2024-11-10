@@ -9,8 +9,9 @@ import io.hhplus.concert.domain.payment.PaymentService
 import io.hhplus.concert.domain.queue.QueueService
 import io.hhplus.concert.domain.schedule.ScheduleService
 import io.hhplus.concert.domain.user.UserService
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionTemplate
 
 @Service
 class ReservationFacade(
@@ -21,9 +22,9 @@ class ReservationFacade(
     private val scheduleService: ScheduleService,
     private val queueService: QueueService,
     private val paymentService: PaymentService,
+    private val transactor: TransactionTemplate
 ) {
 
-    @Transactional
     fun reserve(userId: Long, scheduleId: Long): ReservationResult {
         val lockKey = "reservation:lock:$scheduleId"
         var lockVal: String? = null
@@ -45,13 +46,15 @@ class ReservationFacade(
             throw BizException(BizError.Schedule.TOO_MANY_REQUEST)
 
         try {
-            val user = userService.get(userId)
-            val schedule = scheduleService.get(scheduleId)
+            return transactor.execute {
+                val user = userService.get(userId)
+                val schedule = scheduleService.get(scheduleId)
 
-            val queue = queueService.create(user.id, schedule.id)
-            val token = tokenManager.createQueueToken(queue.id, user.id, schedule.id, queue.status)
+                val queue = queueService.create(user.id, schedule.id)
+                val token = tokenManager.createQueueToken(queue.id, user.id, schedule.id, queue.status)
 
-            return ReservationResult(token, TokenManager.Type.RESERVATION, schedule.id)
+                return@execute ReservationResult(token, TokenManager.Type.RESERVATION, schedule.id)
+            } ?: throw BizException(HttpStatus.INTERNAL_SERVER_ERROR, "대기열에 진입할 수 없습니다.")
         } finally {
             redisManager.releaseLock(lockKey, lockVal)
         }
