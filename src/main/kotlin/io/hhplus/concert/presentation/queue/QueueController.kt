@@ -5,7 +5,6 @@ import io.hhplus.concert.presentation.schedule.request.ScheduleReservationReques
 import io.hhplus.concert.presentation.schedule.response.ScheduleReservationResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
@@ -14,18 +13,16 @@ import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
 @RestController
-@RequestMapping("/concerts/{concertId}/schedules/{scheduleId}/reserve")
+@RequestMapping("/concerts/reserve")
 class QueueController(private val facade: ReservationFacade) : IQueueController {
 
     @PostMapping
-    override fun reserve(
-        @PathVariable("concertId") concertId: Long,
-        @PathVariable("scheduleId") scheduleId: Long,
-        @RequestBody request: ScheduleReservationRequest
-    ) = facade.reserve(request.userId, scheduleId)
-        .run { ScheduleReservationResponse(this) }
-        .run { ResponseEntity.created(URI.create("/concerts/$concertId/schedules/$scheduleId/reserve")).body(this) }
+    override fun reserve(@RequestBody request: ScheduleReservationRequest) =
+        facade.reserve(request.userId, request.scheduleId)
+            .run { ScheduleReservationResponse(this) }
+            .run { ResponseEntity.created(URI.create("/concerts/reserve")).body(this) }
 
+    // TODO : 필터랑 인터셉터에서 토큰값 분해하기
     @GetMapping
     override fun getStatus(@RequestHeader("Authorization") token: String) =
         facade.getStatus(token)
