@@ -10,19 +10,20 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/pay")
-class PaymentController(private val facade: PaymentFacade) {
+class PaymentController(private val facade: PaymentFacade) : IPaymentController {
 
     @GetMapping("/{scheduleId}/seats")
-    fun getPayableSeatList(@PathVariable("scheduleId") scheduleId: Long) = ResponseEntity.ok()
-        .body(facade.getPayableSeatList(scheduleId))
+    override fun getPayableSeatList(@PathVariable("scheduleId") scheduleId: Long) =
+        facade.getPayableSeatList(scheduleId)
+            .run { ResponseEntity.ok(this) }
 
     @PostMapping("user/{userId}/{scheduleId}/seats/{seatId}")
-    fun pay(
+    override fun pay(
         @PathVariable("userId") userId: Long,
         @PathVariable("scheduleId") scheduleId: Long,
         @PathVariable("seatId") seatId: Long
-    ) = ResponseEntity.ok()
-        .body(facade.pay(userId, scheduleId, seatId)
-            .run { PaymentResponse(this) })
+    ) = facade.pay(userId, scheduleId, seatId)
+        .run { PaymentResponse(this) }
+        .run { ResponseEntity.ok(this) }
 
 }

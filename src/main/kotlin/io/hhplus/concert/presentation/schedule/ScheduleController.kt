@@ -10,28 +10,28 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/concerts/{concertId}/schedules")
-class ScheduleController(private val service: ScheduleService) {
-
-    @GetMapping
-    fun getAll(
-        @PathVariable("concertId") concertId: Long,
-        @PathVariable("scheduleId") scheduleId: Long
-    ) = ResponseEntity.ok()
-        .body(service.getAll(concertId)
-            .map { ScheduleResponse(it) })
+class ScheduleController(private val service: ScheduleService) : IScheduleController {
 
     @GetMapping("/{scheduleId}")
-    fun getOne(@PathVariable("scheduleId") scheduleId: Long) = ResponseEntity.ok()
-        .body(service.get(scheduleId)
-            .run { ScheduleResponse(this) })
+    override fun get(@PathVariable("scheduleId") scheduleId: Long) =
+        service.get(scheduleId)
+            .run { ScheduleResponse(this) }
+            .run { ResponseEntity.ok(this) }
+
+    @GetMapping
+    override fun getAll(@PathVariable("concertId") concertId: Long) =
+        service.getAll(concertId)
+            .map { ScheduleResponse(it) }
+            .run { ResponseEntity.ok(this) }
 
     @GetMapping("/{scheduleId}/reservable")
-    fun getReservable(@PathVariable("scheduleId") scheduleId: Long) = ResponseEntity.ok()
-        .body(service.isReservable(scheduleId))
+    override fun getReservable(@PathVariable("scheduleId") scheduleId: Long) =
+        service.isReservable(scheduleId)
+            .run { ResponseEntity.ok(this) }
 
     @GetMapping("/reservable")
-    fun getReservableList(@PathVariable("concertId") concertId: Long) = ResponseEntity.ok()
-        .body(service.getReservableList(concertId))
-
+    override fun getReservableSeatNumberList(@PathVariable("concertId") concertId: Long) =
+        service.getReservableList(concertId)
+            .run { ResponseEntity.ok(this) }
 
 }

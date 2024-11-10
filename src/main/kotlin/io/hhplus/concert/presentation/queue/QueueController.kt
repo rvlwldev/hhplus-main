@@ -15,24 +15,21 @@ import java.net.URI
 
 @RestController
 @RequestMapping("/concerts/{concertId}/schedules/{scheduleId}/reserve")
-class QueueController(private val facade: ReservationFacade) {
+class QueueController(private val facade: ReservationFacade) : IQueueController {
 
     @PostMapping
-    fun reserve(
+    override fun reserve(
         @PathVariable("concertId") concertId: Long,
         @PathVariable("scheduleId") scheduleId: Long,
         @RequestBody request: ScheduleReservationRequest
-    ): ResponseEntity<Any> {
-        val response = facade.reserve(request.userId, scheduleId)
-            .run { ScheduleReservationResponse(this) }
-
-        val uri = URI.create("/concerts/{concertId}/schedules/{scheduleId}/reserve")
-        return ResponseEntity.created(uri)
-            .body(response)
-    }
+    ) = facade.reserve(request.userId, scheduleId)
+        .run { ScheduleReservationResponse(this) }
+        .run { ResponseEntity.created(URI.create("/concerts/$concertId/schedules/$scheduleId/reserve")).body(this) }
 
     @GetMapping
-    fun getStatus(@RequestHeader("Authorization") token: String) = facade.getStatus(token)
-        .run { ScheduleReservationResponse(this) }
+    override fun getStatus(@RequestHeader("Authorization") token: String) =
+        facade.getStatus(token)
+            .run { ScheduleReservationResponse(this) }
+            .run { ResponseEntity.ok(this) }
 
 }
