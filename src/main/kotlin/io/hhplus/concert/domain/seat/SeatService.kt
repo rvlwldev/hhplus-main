@@ -7,6 +7,11 @@ import org.springframework.stereotype.Service
 @Service
 class SeatService(private val repo: SeatRepository) {
 
+    fun get(scheduleId: Long, seatNumber: Long): SeatInfo? {
+        return repo.findByScheduleIdAndNumber(scheduleId, seatNumber)
+            ?.run { SeatInfo(this) }
+    }
+
     fun getOrCreate(scheduleId: Long, seatNumber: Long): SeatInfo {
         var seat = repo.findByScheduleIdAndNumber(scheduleId, seatNumber)
 

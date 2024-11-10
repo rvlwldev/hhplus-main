@@ -1,103 +1,87 @@
 package facade
 
+import io.hhplus.concert.ConcertApplication
 import io.hhplus.concert.application.reservation.ReservationFacade
+import io.hhplus.concert.application.support.RedisManager
 import io.hhplus.concert.application.support.TokenManager
 import io.hhplus.concert.core.exception.BizError
 import io.hhplus.concert.core.exception.BizException
-import io.hhplus.concert.domain.concert.ConcertService
-import io.hhplus.concert.domain.payment.PaymentService
 import io.hhplus.concert.domain.queue.Queue
 import io.hhplus.concert.domain.queue.QueueInfo
 import io.hhplus.concert.domain.queue.QueueService
-import io.hhplus.concert.domain.queue.QueueStatus
 import io.hhplus.concert.domain.schedule.Schedule
 import io.hhplus.concert.domain.schedule.ScheduleInfo
 import io.hhplus.concert.domain.schedule.ScheduleService
 import io.hhplus.concert.domain.user.User
 import io.hhplus.concert.domain.user.UserInfo
 import io.hhplus.concert.domain.user.UserService
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.whenever
-import kotlin.test.assertEquals
+import org.mockito.BDDMockito.given
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.transaction.annotation.Transactional
 
-@ExtendWith(MockitoExtension::class)
+@SpringBootTest(classes = [ConcertApplication::class])
 class ReservationFacadeTest {
 
-    @Mock
+    @Autowired
+    private lateinit var reservationFacade: ReservationFacade
+
+    @MockBean
+    private lateinit var redisManager: RedisManager
+
+    @MockBean
     private lateinit var tokenManager: TokenManager
 
-    @Mock
+    @MockBean
     private lateinit var userService: UserService
 
-    @Mock
-    private lateinit var concertService: ConcertService
-
-    @Mock
+    @MockBean
     private lateinit var scheduleService: ScheduleService
 
-    @Mock
+    @MockBean
     private lateinit var queueService: QueueService
 
-    @Mock
-    private lateinit var paymentService: PaymentService
-
-    @InjectMocks
-    private lateinit var sut: ReservationFacade
-
-    val token = "token"
+    private val userId: Long = 1L
+    private val scheduleId: Long = 100L
+    val lockKey = "reservation:lock:$scheduleId"
 
     @BeforeEach
-    fun setUp() {
-        whenever(userService.get(1L)).thenReturn(UserInfo(User(1)))
+    fun setup() {
+        val user = UserInfo(User(id = userId, name = "Test User"))
+        val schedule = ScheduleInfo(Schedule(id = scheduleId, concertId = 1L, reservableCount = 50))
+        val queue = QueueInfo(Queue(id = 1L, userId = userId, scheduleId = scheduleId))
 
-        val schedule = Schedule(1, 1L, reservableCount = 50)
-        whenever(scheduleService.get(1L)).thenReturn(ScheduleInfo(schedule))
-
-        val queue = Queue(id = 1L, userId = 1L, scheduleId = 1L)
-        whenever(queueService.create(1L, 1L)).thenReturn(QueueInfo(queue))
-
-        val token = "token"
-        whenever(tokenManager.createQueueToken(queue.id, 1L, 1L, QueueStatus.WAIT.name))
-            .thenReturn(token)
+        given(userService.get(userId)).willReturn(user)
+        given(scheduleService.get(scheduleId)).willReturn(schedule)
+        given(queueService.create(userId, scheduleId)).willReturn(queue)
+        given(tokenManager.createQueueToken(queue.id, userId, scheduleId, queue.status))
+            .willReturn("test-token")
     }
 
     @Test
-    fun `대기열을 생성할 때, 같은 아이디로 중복 생성하면 DUPLICATED 커스텀 예외 발생`() {
-        // given
-        val userId = 1L
-        val scheduleId = 1L
+    @Transactional
+    fun `락이 없을때, 대기열 토큰 반환 성공`() {
+        given(redisManager.tryLock(lockKey)).willReturn("lockValue")
 
-        // when
-        sut.reserve(userId, scheduleId)
-        `when`(queueService.create(userId, scheduleId))
-            .thenThrow(BizException(BizError.Queue.DUPLICATED))
+        val result = reservationFacade.reserve(userId, scheduleId)
+        assertNotNull(result.token)
+    }
 
-        // then
-        assertThrows<BizException> {
-            sut.reserve(userId, scheduleId)
+    @Test
+    @Transactional
+    fun `락 획득 실패 시 TOO_MANY_REQUEST 예외 발생`() {
+        given(redisManager.tryLock(lockKey)).willReturn(null)
+
+        val exception = assertThrows<BizException> {
+            reservationFacade.reserve(userId, scheduleId)
         }
-    }
 
-    @Test
-    fun `좌석 결제 성공`() {
-        // given
-        val userId = 1L
-        val scheduleId = 1L
-
-        // when
-        val result = sut.reserve(userId, scheduleId)
-
-        // then
-        assertEquals(token, result.token)
-        assertEquals(1L, result.scheduleId)
-        assertEquals(token, result.token)
+        assertEquals(BizError.Schedule.TOO_MANY_REQUEST.second, exception.message)
     }
 }
-

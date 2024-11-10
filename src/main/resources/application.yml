@@ -19,6 +19,10 @@ spring:
       ddl-auto: create-drop
     show-sql: true
     defer-datasource-initialization: true
+  redis:
+    host: localhost
+    port: 5555
+    timeout: 2000ms
   devtools:
     restart:
       enabled: true
