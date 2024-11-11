@@ -1,6 +1,6 @@
 package io.hhplus.concert.presentation.queue
 
-import io.hhplus.concert.application.reservation.ReservationFacadeV2
+import io.hhplus.concert.application.reservation.ReservationFacade
 import io.hhplus.concert.presentation.schedule.request.ScheduleReservationRequest
 import io.hhplus.concert.presentation.schedule.response.ScheduleReservationResponse
 import org.springframework.http.ResponseEntity
@@ -15,7 +15,7 @@ import java.net.URI
 
 @RestController
 @RequestMapping("/concerts/reserve")
-class QueueController(private val facade: ReservationFacadeV2) : IQueueController {
+class QueueController(private val facade: ReservationFacade) : IQueueController {
 
     @PostMapping
     override fun reserve(@RequestBody request: ScheduleReservationRequest) =
