@@ -7,6 +7,12 @@ import org.springframework.http.ResponseEntity
 interface IQueueController {
 
     fun reserve(request: ScheduleReservationRequest): ResponseEntity<ScheduleReservationResponse>
-    fun getStatus(token: String): ResponseEntity<ScheduleReservationResponse>
+    fun getStatus(
+        token: String,
+        queueId: Long,
+        userId: Long,
+        concertId: Long,
+        scheduleId: Long
+    ): ResponseEntity<ScheduleReservationResponse>
 
 }
