@@ -1,4 +1,4 @@
-package io.hhplus.concert.application.support
+package io.hhplus.concert.core.support
 
 import io.hhplus.concert.core.exception.BizException
 import io.jsonwebtoken.ExpiredJwtException
@@ -15,18 +15,15 @@ import java.util.*
 @Component
 class TokenManager {
 
-    enum class Type {
-        RESERVATION, PAYMENT
-    }
-
     private val queueTokenSecret: Key = Keys.secretKeyFor(SignatureAlgorithm.HS256)
 
     private val paymentTokenSecret: Key = Keys.secretKeyFor(SignatureAlgorithm.HS256)
     private val paymentTokenExpiration: Long = 20 * 60 * 1000L // 20분
 
-    fun createQueueToken(userId: Long, scheduleId: Long): String {
+    fun createQueueToken(userId: Long, concertId: Long, scheduleId: Long): String {
         val claims = HashMap<String, Any>()
         claims["userId"] = userId
+        claims["concertId"] = concertId
         claims["scheduleId"] = scheduleId
         claims["createdAt"] = LocalDateTime.now().toString()
 
@@ -40,14 +37,14 @@ class TokenManager {
 
     fun createPaymentToken(userId: Long, scheduleId: Long, paymentId: Long): String {
         val now = Date()
+        val offset = ZoneId.of("Asia/Seoul").rules.getOffset(LocalDateTime.now())
         val expiryDate = Date(now.time + paymentTokenExpiration)
+
         val claims = HashMap<String, Long>()
         claims["userId"] = userId
         claims["scheduleId"] = scheduleId
         claims["paymentId"] = paymentId
-        claims["createdAt"] = LocalDateTime.now().toEpochSecond(
-            ZoneId.of("Asia/Seoul").rules.getOffset(LocalDateTime.now())
-        )
+        claims["createdAt"] = LocalDateTime.now().toEpochSecond(offset)
 
         return Jwts.builder()
             .setClaims(claims)
@@ -68,6 +65,7 @@ class TokenManager {
 
             val resultMap = HashMap<String, Any>()
             resultMap["userId"] = claims["userId"].toString().toLong()
+            resultMap["concertId"] = claims["concertId"].toString().toLong()
             resultMap["scheduleId"] = claims["scheduleId"].toString().toLong()
             resultMap["createdAt"] = LocalDateTime.parse(claims["createdAt"].toString())
 
@@ -75,7 +73,7 @@ class TokenManager {
         } catch (e: ExpiredJwtException) {
             throw BizException(HttpStatus.REQUEST_TIMEOUT, "인증시간이 초과되었습니다.")
         } catch (e: Exception) {
-            throw BizException(HttpStatus.INTERNAL_SERVER_ERROR, "잘못된 요청입니다.")
+            throw BizException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.")
         }
     }
 
