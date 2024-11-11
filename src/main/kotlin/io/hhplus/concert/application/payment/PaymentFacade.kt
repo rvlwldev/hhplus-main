@@ -5,8 +5,10 @@ import io.hhplus.concert.domain.concert.ConcertService
 import io.hhplus.concert.domain.payment.PaymentService
 import io.hhplus.concert.domain.schedule.ScheduleService
 import io.hhplus.concert.domain.seat.SeatService
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
+@Service
 class PaymentFacade(
     private val concertService: ConcertService,
     private val scheduleService: ScheduleService,
