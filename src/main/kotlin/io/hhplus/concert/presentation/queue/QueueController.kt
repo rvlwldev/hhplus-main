@@ -5,8 +5,8 @@ import io.hhplus.concert.presentation.schedule.request.ScheduleReservationReques
 import io.hhplus.concert.presentation.schedule.response.ScheduleReservationResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestAttribute
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
@@ -14,25 +14,25 @@ import org.springframework.web.bind.annotation.RestController
 import java.net.URI
 
 @RestController
-@RequestMapping("/concerts/{concertId}/schedules/{scheduleId}/reserve")
-class QueueController(private val facade: ReservationFacade) {
+@RequestMapping("/concerts/reserve")
+class QueueController(private val facade: ReservationFacade) : IQueueController {
 
     @PostMapping
-    fun reserve(
-        @PathVariable("concertId") concertId: Long,
-        @PathVariable("scheduleId") scheduleId: Long,
-        @RequestBody request: ScheduleReservationRequest
-    ): ResponseEntity<Any> {
-        val response = facade.reserve(request.userId, scheduleId)
+    override fun reserve(@RequestBody request: ScheduleReservationRequest) =
+        facade.reserve(request.userId, request.scheduleId)
             .run { ScheduleReservationResponse(this) }
-
-        val uri = URI.create("/concerts/{concertId}/schedules/{scheduleId}/reserve")
-        return ResponseEntity.created(uri)
-            .body(response)
-    }
+            .run { ResponseEntity.created(URI.create("/concerts/reserve")).body(this) }
 
     @GetMapping
-    fun getStatus(@RequestHeader("Authorization") token: String) = facade.getStatus(token)
-        .run { ScheduleReservationResponse(this) }
+    override fun getStatus(
+        @RequestHeader("Authorization") token: String,
+        @RequestAttribute("id") queueId: Long,
+        @RequestAttribute("userId") userId: Long,
+        @RequestAttribute("concertId") concertId: Long,
+        @RequestAttribute("scheduleId") scheduleId: Long
+    ) =
+        facade.getStatus(token, queueId, userId, concertId, scheduleId)
+            .run { ScheduleReservationResponse(this) }
+            .run { ResponseEntity.ok(this) }
 
 }
