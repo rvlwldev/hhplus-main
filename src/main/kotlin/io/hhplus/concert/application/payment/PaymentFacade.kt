@@ -14,6 +14,7 @@ class PaymentFacade(
     private val scheduleService: ScheduleService,
     private val seatService: SeatService,
     private val paymentService: PaymentService,
+    private val dataPlatform: DataPlatform
 ) {
     fun getPayableSeatList(scheduleId: Long): List<Long> =
         scheduleService.getReservableList(scheduleId)
@@ -36,5 +37,6 @@ class PaymentFacade(
 
         return paymentService.pay(userId)
             .run { PaymentResult(this, scheduleId, seatNumber) }
+            .also { dataPlatform.requestSeat(it.amount, seatNumber) }
     }
 }
