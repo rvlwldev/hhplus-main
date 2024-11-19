@@ -39,6 +39,10 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
     testImplementation("org.springframework.kafka:spring-kafka-test")
+    testImplementation("org.testcontainers:testcontainers:1.20.0")
+    testImplementation("org.testcontainers:kafka:1.20.0")
+    testImplementation("org.testcontainers:junit-jupiter:1.20.0")
+
 }
 
 // about source and compilation
