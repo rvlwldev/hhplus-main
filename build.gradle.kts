@@ -27,6 +27,7 @@ dependencies {
     implementation("com.mysql:mysql-connector-j")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    implementation("org.springframework.kafka:spring-kafka")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
@@ -37,6 +38,11 @@ dependencies {
     testImplementation(libs.spring.boot.starter.test)
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
+    testImplementation("org.testcontainers:testcontainers:1.20.0")
+    testImplementation("org.testcontainers:kafka:1.20.0")
+    testImplementation("org.testcontainers:junit-jupiter:1.20.0")
+
 }
 
 // about source and compilation

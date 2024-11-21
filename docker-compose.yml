@@ -1,0 +1,81 @@
+version: '3.8'
+
+networks:
+  kafka-net:
+    driver: bridge
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    networks:
+      - kafka-net
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 9000
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./.volumes/zookeeper-data:/var/lib/zookeeper
+
+  kafka1:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka1
+    networks:
+      - kafka-net
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:9000
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9001,PLAINTEXT_INTERNAL://kafka1:19001
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9001,PLAINTEXT_INTERNAL://0.0.0.0:19001
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+    ports:
+      - "9001:9001"
+    volumes:
+      - ./.volumes/kafka1-data:/var/lib/kafka/data
+
+  kafka2:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka2
+    networks:
+      - kafka-net
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:9000
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9002,PLAINTEXT_INTERNAL://kafka2:19002
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9002,PLAINTEXT_INTERNAL://0.0.0.0:19002
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+    ports:
+      - "9002:9002"
+    volumes:
+      - ./.volumes/kafka2-data:/var/lib/kafka/data
+
+  akhq:
+    image: tchiotludo/akhq
+    container_name: akhq
+    networks:
+      - kafka-net
+    depends_on:
+      - kafka1
+      - kafka2
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            kafka-cluster:
+              properties:
+                bootstrap.servers: "kafka1:19001,kafka2:19002"
+    ports:
+      - "9999:8080"
