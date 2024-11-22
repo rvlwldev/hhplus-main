@@ -3,9 +3,9 @@ package facade
 import io.hhplus.concert.ConcertApplication
 import io.hhplus.concert.application.reservation.ReservationFacade
 import io.hhplus.concert.application.support.DistributedLocker
-import io.hhplus.concert.application.support.TokenManager
 import io.hhplus.concert.core.exception.BizError
 import io.hhplus.concert.core.exception.BizException
+import io.hhplus.concert.core.support.TokenManager
 import io.hhplus.concert.domain.queue.Queue
 import io.hhplus.concert.domain.queue.QueueInfo
 import io.hhplus.concert.domain.queue.QueueService
@@ -60,7 +60,7 @@ class ReservationFacadeTest {
         given(userService.get(userId)).willReturn(user)
         given(scheduleService.get(scheduleId)).willReturn(schedule)
         given(queueService.create(userId, scheduleId)).willReturn(queue)
-        given(tokenManager.createQueueToken(queue.id, userId))
+        given(tokenManager.createQueueToken(userId, schedule.concertId, scheduleId))
             .willReturn("test-token")
     }
 
