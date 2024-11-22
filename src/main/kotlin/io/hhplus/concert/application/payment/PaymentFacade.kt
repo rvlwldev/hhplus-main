@@ -1,6 +1,8 @@
 package io.hhplus.concert.application.payment
 
 import io.hhplus.concert.application.payment.result.PaymentResult
+import io.hhplus.concert.core.exception.BizError
+import io.hhplus.concert.core.exception.BizException
 import io.hhplus.concert.domain.concert.ConcertService
 import io.hhplus.concert.domain.payment.PaymentService
 import io.hhplus.concert.domain.schedule.ScheduleService
@@ -13,8 +15,7 @@ class PaymentFacade(
     private val concertService: ConcertService,
     private val scheduleService: ScheduleService,
     private val seatService: SeatService,
-    private val paymentService: PaymentService,
-    private val dataPlatform: DataPlatform
+    private val paymentService: PaymentService
 ) {
     fun getPayableSeatList(scheduleId: Long): List<Long> =
         scheduleService.getReservableList(scheduleId)
@@ -32,11 +33,12 @@ class PaymentFacade(
 
     @Transactional
     fun pay(userId: Long, scheduleId: Long, seatNumber: Long): PaymentResult {
-        val seat = seatService.getOrCreate(userId, seatNumber)
-        seatService.confirm(seat.id)
+        seatService.get(scheduleId, seatNumber)
+            ?.run { seatService.confirm(this.id) }
+            ?: throw BizException(BizError.Seat.NOT_FOUND)
 
         return paymentService.pay(userId)
             .run { PaymentResult(this, scheduleId, seatNumber) }
-            .also { dataPlatform.requestSeat(it.amount, seatNumber) }
     }
+
 }
