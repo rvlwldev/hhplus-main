@@ -8,7 +8,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 
 enum class SeatStatus {
-    EMPTY, WAIT, PAID
+    EMPTY, WAIT, PAID, FAIL
 }
 
 @Entity

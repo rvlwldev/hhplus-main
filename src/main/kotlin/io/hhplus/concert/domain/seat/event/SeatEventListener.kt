@@ -40,4 +40,13 @@ class SeatEventListener(
         kafka.send("\${topic.seat.reserve}", seatJson)
     }
 
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun sendConfirmEvent(seat: SeatEvent.Confirm) {
+        if (outboxService.isDone(seat.id, "Seat"))
+            throw BizException(HttpStatus.CONFLICT, "중복된 요청입니다.")
+
+        val seatJson = objectMapper.writeValueAsString(seat)
+        kafka.send("\${topic.seat.pay}", seatJson)
+    }
+
 }
