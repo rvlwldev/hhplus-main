@@ -1,101 +1,101 @@
 package facade
 
-import io.hhplus.concert.ConcertApplication
 import io.hhplus.concert.application.payment.PaymentFacade
 import io.hhplus.concert.application.payment.result.PaymentResult
-import io.hhplus.concert.application.support.DistributedLocker
-import io.hhplus.concert.core.exception.BizError
 import io.hhplus.concert.core.exception.BizException
-import io.hhplus.concert.domain.concert.Concert
-import io.hhplus.concert.domain.concert.ConcertInfo
 import io.hhplus.concert.domain.concert.ConcertService
-import io.hhplus.concert.domain.payment.Payment
-import io.hhplus.concert.domain.payment.PaymentInfo
+import io.hhplus.concert.domain.core.outbox.OutBox
+import io.hhplus.concert.domain.core.outbox.OutBoxRepository
+import io.hhplus.concert.domain.core.outbox.OutBoxService
 import io.hhplus.concert.domain.payment.PaymentService
-import io.hhplus.concert.domain.payment.PaymentStatus
-import io.hhplus.concert.domain.schedule.Schedule
-import io.hhplus.concert.domain.schedule.ScheduleInfo
 import io.hhplus.concert.domain.schedule.ScheduleService
 import io.hhplus.concert.domain.seat.Seat
 import io.hhplus.concert.domain.seat.SeatInfo
 import io.hhplus.concert.domain.seat.SeatService
 import io.hhplus.concert.domain.seat.SeatStatus
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.BDDMockito.given
-import org.mockito.Mockito
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.transaction.annotation.Transactional
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.InjectMocks
+import org.mockito.Mock
+import org.mockito.Mockito.eq
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
+import org.springframework.kafka.core.KafkaTemplate
 
-@SpringBootTest(classes = [ConcertApplication::class])
-class PaymentIntegrationTest {
+@ExtendWith(MockitoExtension::class)
+class PaymentFacadeTest {
 
-    @Autowired
-    private lateinit var paymentFacade: PaymentFacade
+    @Mock
+    private lateinit var kafkaTemplate: KafkaTemplate<String, String>
 
-    @MockBean
-    private lateinit var distributedLocker: DistributedLocker
+    @Mock
+    private lateinit var outBoxRepository: OutBoxRepository
 
-    @MockBean
-    private lateinit var concertService: ConcertService
+    @InjectMocks
+    private lateinit var outBoxService: OutBoxService
 
-    @MockBean
-    private lateinit var scheduleService: ScheduleService
-
-    @MockBean
+    @Mock
     private lateinit var seatService: SeatService
 
-    @MockBean
-    private lateinit var paymentService: PaymentService
-
-    private val userId: Long = 1L
-    private val scheduleId: Long = 100L
-    private val seatNumber: Long = 10L
-    private val lockKey = "reservation:lock:$scheduleId:$seatNumber"
+    private lateinit var paymentFacade: PaymentFacade
 
     @BeforeEach
     fun setup() {
-        val concert = ConcertInfo(Concert(id = 1L, price = 5000))
-        val schedule = ScheduleInfo(Schedule(id = scheduleId, concertId = concert.id, reservableCount = 50))
-        val seat = SeatInfo(Seat(id = seatNumber, scheduleId = scheduleId, status = SeatStatus.EMPTY, seatNumber = seatNumber))
-        val payment = PaymentInfo(Payment(id = 1L, userId = userId, status = PaymentStatus.WAIT))
-
-        given(scheduleService.get(scheduleId)).willReturn(schedule)
-        given(concertService.get(schedule.id)).willReturn(concert)
-        given(seatService.get(scheduleId, seatNumber)).willReturn(seat)
-        given(paymentService.getLatestByUserId(userId)).willReturn(payment)
-
+        paymentFacade = PaymentFacade(
+            concertService = mock(ConcertService::class.java),
+            scheduleService = mock(ScheduleService::class.java),
+            seatService = seatService,
+            paymentService = mock(PaymentService::class.java)
+        )
     }
 
     @Test
-    @Transactional
-    fun `락이 없을때, 결제성공`() {
-        val lockValue = "lockValue"
-        given(distributedLocker.tryLock(lockKey)).willReturn(lockValue)
+    fun `이벤트 발행 시 성공 여부 테스트`() {
+        val seat = Seat(
+            id = 1L,
+            userId = 1L,
+            scheduleId = 1L,
+            seatNumber = 1L,
+            status = SeatStatus.WAIT
+        )
 
-        val result: PaymentResult = paymentFacade.ready(userId, scheduleId, seatNumber)
-
-        assertNotNull(result)
-        assertEquals(scheduleId, result.scheduleId)
-        assertEquals(seatNumber, result.seatNumber)
-
-        Mockito.verify(distributedLocker).releaseLock(lockKey, lockValue)
-    }
-
-    @Test
-    fun `락 획득 실패 시, ALREADY_IN_PROGRESS 예외 발생`() {
-        given(distributedLocker.tryLock(lockKey)).willReturn(null)
-
-        val exception = assertThrows<BizException> {
-            paymentFacade.ready(userId, scheduleId, seatNumber)
+        whenever(seatService.get(any<Long>(), any<Long>())).then { SeatInfo(seat) }
+        whenever(outBoxService.isDone(1L, "Seat")).thenReturn(false)
+        whenever(outBoxRepository.save(any<OutBox>())).thenAnswer { invocation ->
+            val argument = invocation.arguments[0] as OutBox
+            argument
         }
 
-        assertEquals(BizError.Payment.ALREADY_IN_PROGRESS.second, exception.message)
+        whenever(paymentFacade.pay(any<Long>(), any<Long>(), any<Long>()))
+            .thenReturn(
+                PaymentResult(
+                    paymentId = 1L,
+                    scheduleId = 1L,
+                    seatNumber = 1L,
+                    amount = 1L,
+                    status = "WAIT"
+                )
+            )
+
+        verify(kafkaTemplate, times(1)).send(eq("test-topic"), any<String>())
+        verify(outBoxRepository, times(1)).save(any())
     }
 
+    @Test
+    fun `이벤트 발행 시 409 에러 테스트`() {
+        whenever(outBoxService.isDone(1L, "Seat")).thenReturn(true)
+
+        val exception = assertThrows<BizException> {
+            paymentFacade.pay(1L, 1L, 1L)
+        }
+
+        assert(exception.message!!.contains("중복된 요청입니다."))
+        verify(kafkaTemplate, times(0)).send(any(), any())
+    }
 }

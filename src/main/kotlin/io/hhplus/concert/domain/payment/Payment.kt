@@ -10,7 +10,7 @@ import jakarta.persistence.Transient
 import java.time.LocalDateTime
 
 enum class PaymentStatus {
-    WAIT, PAID, TIME_OUT
+    WAIT, PAID, TIME_OUT, CANCEL
 }
 
 @Entity
@@ -58,5 +58,9 @@ class Payment(
         if (!result) status = PaymentStatus.TIME_OUT
 
         return result
+    }
+
+    fun cancel() {
+        status = PaymentStatus.CANCEL
     }
 }

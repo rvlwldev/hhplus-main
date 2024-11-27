@@ -40,7 +40,11 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     listener:
-      missing-topics-fatal: true
+      missing-topics-fatal: false
+    topic:
+      seat:
+        reserve: SEAT-RESERVE
+        pay: SEAT-PAY
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
