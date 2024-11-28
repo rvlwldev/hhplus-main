@@ -1,3 +1,8 @@
+#logging:
+#  level:
+#    org.hibernate.SQL: debug
+#    org.hibernate.orm.jdbc.bind: trace
+
 spring:
   application.name: hhplus-concert
   #  datasource:
@@ -18,11 +23,11 @@ spring:
     password: 1234
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
     defer-datasource-initialization: true
   devtools:
     restart:
@@ -41,17 +46,13 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     listener:
       missing-topics-fatal: false
-    topic:
-      seat:
-        reserve: SEAT-RESERVE
-        pay: SEAT-PAY
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: method
     tagsSorter: alpha
-
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
+topic:
+  seat:
+    reserve: SEAT-RESERVE
+    pay: SEAT-PAY
